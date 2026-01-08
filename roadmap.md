@@ -179,18 +179,18 @@ Refer to [technical design](docs/technical_design.md) if you need technical deta
 ## Phase 6: Packaging & Distribution
 
 ### 6.1 Package Configuration
-- [ ] Set `"type": "module"` in `package.json`
-- [ ] Configure `"bin": { "slipsnisse": "./dist/cli.js" }`
-- [ ] Add `"files"` array for npm publish (dist, README, LICENSE)
-- [ ] Add shebang `#!/usr/bin/env node` to CLI entry
+- [x] Set `"type": "module"` in `package.json`
+- [x] Configure `"bin": { "slipsnisse": "./dist/cli.js" }`
+- [x] Add `"files"` array for npm publish (dist, README, LICENSE)
+- [x] Add shebang `#!/usr/bin/env node` to CLI entry
 
 ### 6.2 Build Script
-- [ ] Add `pnpm build` script (tsc compile to dist/)
-- [ ] Verify output works with `node dist/cli.js --config ...`
+- [x] Add `pnpm build` script (tsc compile to dist/)
+- [x] Verify output works with `node dist/cli.js --config ...`
 
 ### 6.3 NPX Compatibility
-- [ ] Test `npx slipsnisse --config ./example.json`
-- [ ] Document usage in README
+- [x] Test `npx slipsnisse --config ./example.json`
+- [x] Document usage in README
 
 ---
 

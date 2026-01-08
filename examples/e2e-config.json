@@ -1,0 +1,20 @@
+{
+  "mcps": {
+    "echo_server": {
+      "command": "npx",
+      "args": ["tsx", "/Users/juan/code/mine/slipsnisse/examples/echo-server.ts"]
+    }
+  },
+  "tools": [
+    {
+      "name": "speak",
+      "description": "Speak to the user",
+      "internal_tools": {
+        "echo_server": ["echo"]
+      },
+      "provider": "openai",
+      "model": "gpt-4o",
+      "system_prompt": "You are a repeater. Use the echo_server__echo tool to repeat what the user says. Do not add any extra text."
+    }
+  ]
+}

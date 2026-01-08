@@ -11,7 +11,7 @@ import { createLogger, initLogger, type LogLevel } from "./logger.js";
 import { ClientManager } from "./mcp/client-manager.js";
 import { createServer, startServer } from "./server.js";
 
-const LOG_LEVELS = ["debug", "info", "warn", "error"] as const;
+const LOG_LEVELS = ["debug", "info", "warn", "error", "silent"] as const;
 
 const parseCliArgs = () => {
 	const { values } = parseArgs({

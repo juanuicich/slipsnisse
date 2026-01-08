@@ -39,8 +39,8 @@ describe("Provider Registry", () => {
         const openaiModel = await getModel("openai", "gpt-4");
         const googleModel = await getModel("google", "gemini-pro");
 
-        expect(openaiModel.provider).toBe("openai");
-        expect(googleModel.provider).toBe("google");
+        expect((openaiModel as any).provider).toBe("openai");
+        expect((googleModel as any).provider).toBe("google");
     });
 
     it("should throw error for non-existent provider package", async () => {

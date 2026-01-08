@@ -77,7 +77,8 @@ describe("SlipsnisseConfigSchema", () => {
         const result = SlipsnisseConfigSchema.safeParse(config);
         expect(result.success).toBe(true);
         if (result.success) {
-            expect(result.data.mcps.minimal.transport).toBe("stdio");
+            const minimalMcp = result.data.mcps.minimal as any;
+            expect(minimalMcp.transport).toBe("stdio");
         }
     });
 

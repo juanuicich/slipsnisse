@@ -41,12 +41,31 @@ export const ToolConfigSchema = z.object({
 });
 
 /**
+ * Provider configuration for Vercel AI SDK
+ */
+export const ProviderConfigSchema = z.object({
+	provider: z
+		.string()
+		.describe("Vercel AI SDK provider (google, openai, anthropic, etc.)"),
+	endpoint: z.string().optional().describe("Custom endpoint URL"),
+	apiKey: z.string().optional().describe("API key for the provider"),
+	providerOptions: z
+		.record(z.string(), z.unknown())
+		.optional()
+		.describe("Additional provider-specific options"),
+});
+
+/**
  * Root configuration schema
  */
 export const SlipsnisseConfigSchema = z.object({
 	mcps: z
 		.record(z.string(), McpConfigSchema)
 		.describe("Map of downstream MCP server configurations"),
+	providers: z
+		.record(z.string(), ProviderConfigSchema)
+		.optional()
+		.describe("Map of provider configurations"),
 	tools: z
 		.array(ToolConfigSchema)
 		.describe("List of composite tools exposed by Slipsnisse"),

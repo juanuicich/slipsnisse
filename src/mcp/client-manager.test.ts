@@ -88,7 +88,7 @@ describe("ClientManager", () => {
 
 		const tools = manager.getAvailableTools({ s1: ["tool1"] });
 		expect(tools).toHaveLength(1);
-		expect(tools[0].namespacedName).toBe("s1__tool1");
+		expect(tools[0]!.namespacedName).toBe("s1__tool1");
 	});
 
 	it("should call tool through namespaced name", async () => {
@@ -125,7 +125,7 @@ describe("ClientManager", () => {
 
 		expect(mockedMethods.mockClose).toHaveBeenCalled();
 		
-		const spawnResult = vi.mocked(spawn).mock.results[0].value;
+		const spawnResult = vi.mocked(spawn).mock.results[0]!.value;
 		expect(spawnResult.kill).toHaveBeenCalled();
 	});
 });
