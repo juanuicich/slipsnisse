@@ -1,4 +1,4 @@
-import { type ChildProcess, spawn as originalSpawn } from "node:child_process";
+import type { ChildProcess, spawn as originalSpawn } from "node:child_process";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { initLogger } from "../logger.js";
 import type { ClientManager as ClientManagerType } from "./client-manager.js";
