@@ -10,10 +10,14 @@ import { initLogger } from "../logger.js";
 
 vi.mock("@ai-sdk/openai", () => ({
     openai: vi.fn((modelId: string) => ({ modelId, provider: "openai" })),
+    createOpenAI: vi.fn(),
+    createOpenai: undefined,
 }));
 
 vi.mock("@ai-sdk/google", () => ({
     google: vi.fn((modelId: string) => ({ modelId, provider: "google" })),
+    createGoogleGenerativeAI: vi.fn(),
+    createGoogle: undefined,
 }));
 
 describe("Provider Registry", () => {

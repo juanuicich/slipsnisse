@@ -31,6 +31,11 @@ const providerCache = new Map<string, ProviderFunction>();
 export const getModel = async (
 	providerName: string,
 	modelId: string,
+	options?: {
+		endpoint?: string;
+		apiKey?: string;
+		providerOptions?: Record<string, unknown>;
+	},
 ): Promise<LanguageModel> => {
 	if (!providerCache.has(providerName)) {
 		getLog().debug({ providerName }, "Loading provider");
@@ -38,18 +43,45 @@ export const getModel = async (
 		const pkgName = `@ai-sdk/${providerName}`;
 		try {
 			const module = await import(pkgName);
-			// Vercel SDK providers export a function matching the provider name
-			// e.g., import { google } from '@ai-sdk/google'
-			const providerFn = module[providerName] || module.default;
 
-			if (typeof providerFn !== "function") {
-				throw new Error(
-					`Provider '${providerName}' does not export a valid model function`,
-				);
+			// Check for factory function for custom configuration
+			// e.g., createOpenAI, createAnthropic
+			let factoryFnName = `create${providerName.charAt(0).toUpperCase() + providerName.slice(1)}`;
+			let factoryFn = module[factoryFnName];
+
+			// Handle special naming cases
+			if (!factoryFn && providerName === "openai") {
+				factoryFn = module.createOpenAI;
+			} else if (!factoryFn && providerName === "google") {
+				factoryFn = module.createGoogleGenerativeAI;
+			} else if (!factoryFn && providerName === "openai-compatible") {
+				factoryFn = module.createOpenAICompatible;
 			}
 
-			providerCache.set(providerName, providerFn);
-			getLog().info({ providerName }, "Provider loaded");
+			// Default provider function (usually environment-based)
+			const defaultProviderFn = module[providerName] || module.default;
+
+			if (options && typeof factoryFn === "function") {
+				// Use factory with configuration
+				const config: Record<string, unknown> = {
+					...options.providerOptions,
+				};
+
+				if (options.endpoint) config.baseURL = options.endpoint;
+				if (options.apiKey) config.apiKey = options.apiKey;
+
+				const configuredProvider = factoryFn(config);
+				providerCache.set(providerName, configuredProvider);
+				getLog().info({ providerName, ...options }, "Provider loaded with config");
+			} else if (typeof defaultProviderFn === "function") {
+				// Fallback to default provider
+				providerCache.set(providerName, defaultProviderFn);
+				getLog().info({ providerName }, "Provider loaded (default)");
+			} else {
+				throw new Error(
+					`Provider '${providerName}' does not export a valid model function or factory`,
+				);
+			}
 		} catch (err) {
 			const message = err instanceof Error ? err.message : String(err);
 			throw new Error(

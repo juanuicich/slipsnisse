@@ -1,0 +1,20 @@
+{
+  "mcps": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "./"]
+    }
+  },
+  "tools": [
+    {
+      "name": "list_files",
+      "description": "Lists files in the current directory.",
+      "internal_tools": {
+        "filesystem": ["list_directory"]
+      },
+      "provider": "google",
+      "model": "gemini-2.0-flash-exp",
+      "system_prompt": "You are a helpful assistant. Use the filesystem to list files."
+    }
+  ]
+}

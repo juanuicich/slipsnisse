@@ -27,12 +27,13 @@ export const initLogger = (config: Partial<LoggerConfig> = {}): Logger => {
 				target: "pino-pretty",
 				options: {
 					colorize: true,
+					destination: 2, // Log to stderr
 				},
 			},
 		}),
 	};
 
-	rootLogger = pino(options);
+	rootLogger = pino(options, pino.destination(2)); // Force destination for standard logs too
 	return rootLogger;
 };
 

@@ -75,7 +75,11 @@ export class ExecutionEngine {
 			}
 
 			try {
-				const context = await this.buildContext(tool, clientManager);
+				const context = await this.buildContext(
+					tool,
+					clientManager,
+					config.providers,
+				);
 				this.contexts.set(tool.name, context);
 				getLog().info({ tool: tool.name }, "Execution context ready");
 			} catch (err) {
@@ -99,9 +103,21 @@ export class ExecutionEngine {
 	private async buildContext(
 		tool: ToolConfig,
 		clientManager: ClientManager,
+		providerConfigs?: SlipsnisseConfig["providers"],
 	): Promise<ToolExecutionContext> {
 		// Resolve model instance
-		const model = await getModel(tool.provider, tool.model);
+		const providerConfig = providerConfigs?.[tool.provider];
+		const model = await getModel(
+			providerConfig?.provider || tool.provider,
+			tool.model,
+			providerConfig
+				? {
+						endpoint: providerConfig.endpoint,
+						apiKey: providerConfig.apiKey,
+						providerOptions: providerConfig.providerOptions,
+					}
+				: undefined,
+		);
 		getLog().debug(
 			{ tool: tool.name, provider: tool.provider, model: tool.model },
 			"Model resolved",

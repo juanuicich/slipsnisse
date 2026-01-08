@@ -19,7 +19,7 @@ const getLog = (): Logger => {
  */
 function substituteEnvVars(value: unknown): unknown {
 	if (typeof value === "string") {
-		return value.replace(/\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g, (match, varName) => {
+		return value.replace(/\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g, (_match, varName) => {
 			const envVal = process.env[varName];
 			if (envVal === undefined) {
 				throw new Error(`Environment variable not found: ${varName}`);

@@ -1,0 +1,55 @@
+{
+  "providers": {
+    "google": {
+      "provider": "google",
+      "apiKey": "${GOOGLE_API_KEY}"
+    },
+    "openai": {
+      "provider": "openai",
+      "apiKey": "${OPENAI_API_KEY}"
+    }
+  },
+  "mcps": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "./src"],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    },
+    "rust_docs": {
+      "command": "uvx",
+      "args": ["mcp-rust-docs"]
+    }
+  },
+  "tools": [
+    {
+      "name": "research_dependency",
+      "description": "Finds optimal libraries and usage examples for a specific programming problem.",
+      "arguments": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string" }
+        },
+        "required": ["query"]
+      },
+      "internal_tools": {
+        "filesystem": ["read_file", "list_directory"],
+        "rust_docs": ["search", "read_page"]
+      },
+      "provider": "google",
+      "model": "gemini-2.0-flash-exp",
+      "system_prompt": "You are a Rust expert. Search docs, read files to check compatibility, and synthesize an answer. Be concise."
+    },
+    {
+      "name": "code_review",
+      "description": "Reviews code files for best practices.",
+      "internal_tools": {
+        "filesystem": ["read_file"]
+      },
+      "provider": "openai",
+      "model": "gpt-4o",
+      "system_prompt": "You are a senior auditor. Review the code for security vulnerabilities."
+    }
+  ]
+}

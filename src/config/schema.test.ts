@@ -116,8 +116,8 @@ describe("SlipsnisseConfigSchema", () => {
         const result = SlipsnisseConfigSchema.safeParse(config);
         expect(result.success).toBe(true);
         if (result.success) {
-            expect(result.data.providers?.openai.provider).toBe("openai");
-            expect(result.data.providers?.openai.apiKey).toBe("test-key");
+            expect(result.data.providers?.openai!.provider).toBe("openai");
+            expect(result.data.providers?.openai!.apiKey).toBe("test-key");
         }
     });
 });

@@ -197,16 +197,16 @@ Refer to [technical design](docs/technical_design.md) if you need technical deta
 ## Phase 7: Documentation
 
 ### 7.1 README
-- [ ] Project overview and purpose
-- [ ] Installation instructions
-- [ ] Configuration reference (link to JSON Schema)
-- [ ] Usage examples
-- [ ] Security considerations
+- [x] Project overview and purpose
+- [x] Installation instructions
+- [x] Configuration reference (link to JSON Schema)
+- [x] Usage examples
+- [x] Security considerations
 
 ### 7.2 Example Configs
-- [ ] Create `examples/` directory
-- [ ] Add `research-assistant.json` — filesystem + rust-docs example from design doc
-- [ ] Add `minimal.json` — simplest working config
+- [x] Create `examples/` directory
+- [x] Add `research-assistant.json` — filesystem + rust-docs example from design doc
+- [x] Add `minimal.json` — simplest working config
 
 ---
 

@@ -33,6 +33,7 @@ graph LR
 - **Hierarchical Delegation:** Decouple expensive reasoning from verbose tool usage.
 - **Dynamic Tooling:** Composite tools are defined in a simple JSON configuration.
 - **Vercel AI SDK Integration:** Supports Google, OpenAI, Anthropic, and other providers.
+- **Environment Variable Substitution:** Securely manage secrets in your config using `${VAR_NAME}` syntax.
 - **Tool Namespacing:** Automatically handles collisions between multiple downstream MCP servers.
 - **Low Overhead:** Lightweight Node.js runtime using `pnpm` and `tsx`.
 
@@ -62,10 +63,22 @@ npx -p slipsnisse -p @ai-sdk/mistral -p @ai-sdk/azure slipsnisse --config ./conf
 
 ### Configuration
 
-Slipsnisse is driven by a JSON configuration file. 
+Slipsnisse is driven by a JSON configuration file. You can find example configurations in the [`examples/`](./examples) directory.
+
+#### Environment Variables
+
+You can use `${VAR_NAME}` syntax anywhere in the configuration values (args, env, apiKey, etc.) to substitute parameters from the process environment.
+
+#### Example Config
 
 ```json
 {
+  "providers": {
+    "google": {
+      "provider": "google",
+      "apiKey": "${GEMINI_API_KEY}"
+    }
+  },
   "mcps": {
     "filesystem": {
       "command": "npx",
@@ -80,7 +93,7 @@ Slipsnisse is driven by a JSON configuration file.
         "filesystem": ["read_file", "list_directory"]
       },
       "provider": "google",
-      "model": "gemini-3-flash-preview",
+      "model": "gemini-2.0-flash-exp",
       "system_prompt": "You are a senior engineer. Use the filesystem to research the codebase."
     }
   ]

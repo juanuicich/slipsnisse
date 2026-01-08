@@ -31,7 +31,7 @@ describe("Environment Variable Substitution", () => {
         vi.mocked(readFile).mockResolvedValue(JSON.stringify(config));
 
         const loaded = await loadConfig("config.json");
-        expect(loaded.mcps.test.args[0]).toBe("hello");
+        expect(loaded.mcps.test!.args[0]).toBe("hello");
     });
 
     it("should substitute environment variables in env records", async () => {
@@ -51,7 +51,7 @@ describe("Environment Variable Substitution", () => {
         vi.mocked(readFile).mockResolvedValue(JSON.stringify(config));
 
         const loaded = await loadConfig("config.json");
-        expect(loaded.mcps.test.env?.AUTH_TOKEN).toBe("Bearer secret-123");
+        expect(loaded.mcps.test!.env?.AUTH_TOKEN).toBe("Bearer secret-123");
     });
 
     it("should substitute multiple environment variables in one string", async () => {
@@ -69,7 +69,7 @@ describe("Environment Variable Substitution", () => {
         vi.mocked(readFile).mockResolvedValue(JSON.stringify(config));
 
         const loaded = await loadConfig("config.json");
-        expect(loaded.mcps.test.args[0]).toBe("http://localhost:8080");
+        expect(loaded.mcps.test!.args[0]).toBe("http://localhost:8080");
     });
 
     it("should throw error if environment variable is missing", async () => {
@@ -104,6 +104,6 @@ describe("Environment Variable Substitution", () => {
         vi.mocked(readFile).mockResolvedValue(JSON.stringify(config));
 
         const loaded = await loadConfig("config.json");
-        expect(loaded.providers?.openai.apiKey).toBe("sk-test");
+        expect(loaded.providers?.openai!.apiKey).toBe("sk-test");
     });
 });
