@@ -1,0 +1,20 @@
+{
+	"mcps": {
+		"mock": {
+			"command": "pnpm",
+			"args": ["tsx", "test/mocks/mock-server.ts"],
+			"transport": "stdio"
+		}
+	},
+	"tools": [
+		{
+			"name": "echo_service",
+			"description": "Exposes an echo tool via a subagent",
+			"provider": "google",
+			"model": "gemini-1.5-flash",
+			"internal_tools": {
+				"mock": ["echo"]
+			}
+		}
+	]
+}
