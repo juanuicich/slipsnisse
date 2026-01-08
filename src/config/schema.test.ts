@@ -77,8 +77,9 @@ describe("SlipsnisseConfigSchema", () => {
     const result = SlipsnisseConfigSchema.safeParse(config);
     expect(result.success).toBe(true);
     if (result.success) {
-      const minimalMcp = result.data.mcps.minimal as any;
-      expect(minimalMcp.transport).toBe("stdio");
+      const minimalMcp = result.data.mcps.minimal;
+      expect(minimalMcp).toBeDefined();
+      expect(minimalMcp?.transport).toBe("stdio");
     }
   });
 
@@ -116,8 +117,8 @@ describe("SlipsnisseConfigSchema", () => {
     const result = SlipsnisseConfigSchema.safeParse(config);
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.providers?.openai!.provider).toBe("openai");
-      expect(result.data.providers?.openai!.apiKey).toBe("test-key");
+      expect(result.data.providers?.openai?.provider).toBe("openai");
+      expect(result.data.providers?.openai?.apiKey).toBe("test-key");
     }
   });
 });

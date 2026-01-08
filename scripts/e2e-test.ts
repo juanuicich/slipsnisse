@@ -1,8 +1,7 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { spawn } from "child_process";
-import path from "path";
-import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CLI_PATH = path.join(__dirname, "../src/cli.ts");
@@ -57,13 +56,14 @@ async function runTest() {
       });
       console.log("Tool call success!");
       console.log("Result:", JSON.stringify(result, null, 2));
-    } catch (e: any) {
-      console.log("Tool call failed (expected if no API key):", e.message);
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      console.log("Tool call failed (expected if no API key):", errorMessage);
       // We consider the test 'passed' if we hit the Execution Engine, even if it errors on auth
       if (
-        e.message.includes("API key") ||
-        e.message.includes("Provider") ||
-        e.message.includes("LLM_ERROR")
+        errorMessage.includes("API key") ||
+        errorMessage.includes("Provider") ||
+        errorMessage.includes("LLM_ERROR")
       ) {
         console.log("Successfully reached Execution Engine!");
       } else {

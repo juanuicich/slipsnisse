@@ -23,6 +23,7 @@ describe("Environment Variable Substitution", () => {
       mcps: {
         test: {
           command: "node",
+          // biome-ignore lint/suspicious/noTemplateCurlyInString: testing template syntax
           args: ["${TEST_VAR}"],
         },
       },
@@ -31,7 +32,7 @@ describe("Environment Variable Substitution", () => {
     vi.mocked(readFile).mockResolvedValue(JSON.stringify(config));
 
     const loaded = await loadConfig("config.json");
-    expect(loaded.mcps.test!.args[0]).toBe("hello");
+    expect(loaded.mcps.test?.args[0]).toBe("hello");
   });
 
   it("should substitute environment variables in env records", async () => {
@@ -42,6 +43,7 @@ describe("Environment Variable Substitution", () => {
           command: "node",
           args: [],
           env: {
+            // biome-ignore lint/suspicious/noTemplateCurlyInString: testing template syntax
             AUTH_TOKEN: "Bearer ${API_KEY}",
           },
         },
@@ -51,7 +53,7 @@ describe("Environment Variable Substitution", () => {
     vi.mocked(readFile).mockResolvedValue(JSON.stringify(config));
 
     const loaded = await loadConfig("config.json");
-    expect(loaded.mcps.test!.env?.AUTH_TOKEN).toBe("Bearer secret-123");
+    expect(loaded.mcps.test?.env?.AUTH_TOKEN).toBe("Bearer secret-123");
   });
 
   it("should substitute multiple environment variables in one string", async () => {
@@ -61,6 +63,7 @@ describe("Environment Variable Substitution", () => {
       mcps: {
         test: {
           command: "node",
+          // biome-ignore lint/suspicious/noTemplateCurlyInString: testing template syntax
           args: ["http://${HOST}:${PORT}"],
         },
       },
@@ -69,7 +72,7 @@ describe("Environment Variable Substitution", () => {
     vi.mocked(readFile).mockResolvedValue(JSON.stringify(config));
 
     const loaded = await loadConfig("config.json");
-    expect(loaded.mcps.test!.args[0]).toBe("http://localhost:8080");
+    expect(loaded.mcps.test?.args[0]).toBe("http://localhost:8080");
   });
 
   it("should throw error if environment variable is missing", async () => {
@@ -77,6 +80,7 @@ describe("Environment Variable Substitution", () => {
       mcps: {
         test: {
           command: "node",
+          // biome-ignore lint/suspicious/noTemplateCurlyInString: testing template syntax
           args: ["${MISSING_VAR}"],
         },
       },
@@ -96,6 +100,7 @@ describe("Environment Variable Substitution", () => {
       providers: {
         openai: {
           provider: "openai",
+          // biome-ignore lint/suspicious/noTemplateCurlyInString: testing template syntax
           apiKey: "${GPT_KEY}",
         },
       },
@@ -104,6 +109,6 @@ describe("Environment Variable Substitution", () => {
     vi.mocked(readFile).mockResolvedValue(JSON.stringify(config));
 
     const loaded = await loadConfig("config.json");
-    expect(loaded.providers?.openai!.apiKey).toBe("sk-test");
+    expect(loaded.providers?.openai?.apiKey).toBe("sk-test");
   });
 });

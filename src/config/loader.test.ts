@@ -27,7 +27,7 @@ describe("loadConfig", () => {
   });
 
   it("should throw error if file not found", async () => {
-    const error = new Error("ENOENT") as any;
+    const error: Error & { code?: string } = new Error("ENOENT");
     error.code = "ENOENT";
     vi.mocked(readFile).mockRejectedValue(error);
 
