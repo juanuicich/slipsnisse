@@ -1,30 +1,31 @@
 # Slipsnisse MVP Roadmap
+Refer to [technical design](docs/technical_design.md) if you need technical details.
 
 ## Phase 0: Project Setup
 
 ### 0.1 Initialize Project
-- [ ] `pnpm init`
-- [ ] Add `.gitignore` (node_modules, dist, .env, etc.)
-- [ ] Configure `tsconfig.json` (target ES2022, module NodeNext, strict mode)
-- [ ] Add build scripts to `package.json`
+- [x] `pnpm init`
+- [x] Add `.gitignore` (node_modules, dist, .env, etc.)
+- [x] Configure `tsconfig.json` (target ES2022, module NodeNext, strict mode)
+- [x] Add build scripts to `package.json`
 
 ### 0.2 Install Core Dependencies
-- [ ] `@modelcontextprotocol/sdk` — MCP server + client
-- [ ] `ai` — Vercel AI SDK v6
-- [ ] `zod` — schema validation
-- [ ] `pino` + `pino-pretty` — structured logging
+- [x] `@modelcontextprotocol/sdk` — MCP server + client
+- [x] `ai` — Vercel AI SDK v6
+- [x] `zod` — schema validation
+- [x] `pino` + `pino-pretty` — structured logging
 
 ### 0.3 Install Dev Dependencies
-- [ ] `typescript`
-- [ ] `tsx` — dev runner
-- [ ] `vitest` — testing
-- [ ] `@types/node`
+- [x] `typescript`
+- [x] `tsx` — dev runner
+- [x] `vitest` — testing
+- [x] `@types/node`
 
 ### 0.4 Install Provider SDKs
-- [ ] `@ai-sdk/google`
-- [ ] `@ai-sdk/openai`
-- [ ] `@ai-sdk/anthropic`
-- [ ] Any additional providers exposed by Vercel AI SDK v6 (introspect types to enumerate)
+- [x] `@ai-sdk/google`
+- [x] `@ai-sdk/openai`
+- [x] `@ai-sdk/anthropic`
+- [x] Any additional providers exposed by Vercel AI SDK v6 (introspect types to enumerate)
 
 ---
 
