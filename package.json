@@ -1,51 +1,51 @@
 {
-	"name": "slipsnisse",
-	"version": "1.0.0",
-	"description": "MCP server that exposes AI-powered composite tools",
-	"type": "module",
-	"main": "./dist/cli.js",
-	"bin": {
-		"slipsnisse": "./dist/cli.js"
-	},
-	"files": [
-		"dist",
-		"README.md",
-		"LICENSE"
-	],
-	"scripts": {
-		"build": "tsc",
-		"dev": "tsx src/cli.ts",
-		"test": "vitest",
-		"typecheck": "tsc --noEmit",
-		"format": "biome format --write .",
-		"lint": "biome lint .",
-		"check": "biome check --write ."
-	},
-	"keywords": [
-		"mcp",
-		"ai",
-		"tools",
-		"automation"
-	],
-	"author": "",
-	"license": "ISC",
-	"packageManager": "pnpm@10.27.0",
-	"dependencies": {
-		"@ai-sdk/anthropic": "^3.0.9",
-		"@ai-sdk/google": "^3.0.6",
-		"@ai-sdk/openai": "^3.0.7",
-		"@ai-sdk/openai-compatible": "^2.0.4",
-		"@modelcontextprotocol/sdk": "^1.25.2",
-		"ai": "^6.0.23",
-		"pino": "^10.1.0",
-		"pino-pretty": "^13.1.3",
-		"zod": "^4.3.5"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^2.3.11",
-		"@types/node": "^25.0.3",
-		"tsx": "^4.21.0",
-		"typescript": "^5.9.3",
-		"vitest": "^4.0.16"
-	}
+  "name": "slipsnisse",
+  "version": "1.0.0",
+  "description": "MCP server that exposes AI-powered composite tools",
+  "type": "module",
+  "main": "./dist/cli.js",
+  "bin": {
+    "slipsnisse": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check --write ."
+  },
+  "keywords": [
+    "mcp",
+    "ai",
+    "tools",
+    "automation"
+  ],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.27.0",
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.9",
+    "@ai-sdk/google": "^3.0.6",
+    "@ai-sdk/openai": "^3.0.7",
+    "@ai-sdk/openai-compatible": "^2.0.4",
+    "@modelcontextprotocol/sdk": "^1.25.2",
+    "ai": "^6.0.23",
+    "pino": "^10.1.0",
+    "pino-pretty": "^13.1.3",
+    "zod": "^4.3.5"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.11",
+    "@types/node": "^25.0.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
+  }
 }

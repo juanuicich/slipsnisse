@@ -2,7 +2,10 @@
   "mcps": {
     "echo_server": {
       "command": "npx",
-      "args": ["tsx", "/Users/juan/code/mine/slipsnisse/examples/echo-server.ts"]
+      "args": [
+        "tsx",
+        "/Users/juan/code/mine/slipsnisse/examples/echo-server.ts"
+      ]
     }
   },
   "tools": [

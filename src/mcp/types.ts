@@ -5,27 +5,27 @@ import type { McpConfig } from "../config/schema.js";
 export type TransportType = "stdio" | "sse";
 
 export interface McpConnection {
-	serverId: string;
-	client: Client;
-	tools: Tool[];
-	status: "connected" | "failed" | "disconnected";
-	config: McpConfig;
+  serverId: string;
+  client: Client;
+  tools: Tool[];
+  status: "connected" | "failed" | "disconnected";
+  config: McpConfig;
 }
 
 export interface NamespacedTool {
-	/** Namespaced name: serverId__toolName */
-	namespacedName: string;
-	/** Original tool name */
-	originalName: string;
-	/** Server ID this tool belongs to */
-	serverId: string;
-	/** Tool description */
-	description: string;
-	/** Input schema */
-	inputSchema: Record<string, unknown>;
+  /** Namespaced name: serverId__toolName */
+  namespacedName: string;
+  /** Original tool name */
+  originalName: string;
+  /** Server ID this tool belongs to */
+  serverId: string;
+  /** Tool description */
+  description: string;
+  /** Input schema */
+  inputSchema: Record<string, unknown>;
 }
 
 export interface ToolCallResult {
-	content: unknown;
-	isError?: boolean;
+  content: unknown;
+  isError?: boolean;
 }

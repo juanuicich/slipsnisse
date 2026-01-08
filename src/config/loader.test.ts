@@ -1,57 +1,57 @@
-import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
-import { loadConfig } from "./loader.js";
 import { readFile } from "node:fs/promises";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { initLogger } from "../logger.js";
+import { loadConfig } from "./loader.js";
 
 vi.mock("node:fs/promises");
 
 describe("loadConfig", () => {
-    beforeAll(() => {
-        initLogger({ level: "silent" });
-    });
-    
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
+  beforeAll(() => {
+    initLogger({ level: "silent" });
+  });
 
-	it("should load and validate a valid config file", async () => {
-		const validConfig = {
-			mcps: {},
-			tools: [],
-		};
-		vi.mocked(readFile).mockResolvedValue(JSON.stringify(validConfig));
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-		const config = await loadConfig("config.json");
-		expect(config).toEqual(validConfig);
-		expect(readFile).toHaveBeenCalledWith("config.json", "utf-8");
-	});
+  it("should load and validate a valid config file", async () => {
+    const validConfig = {
+      mcps: {},
+      tools: [],
+    };
+    vi.mocked(readFile).mockResolvedValue(JSON.stringify(validConfig));
 
-	it("should throw error if file not found", async () => {
-		const error = new Error("ENOENT") as any;
-		error.code = "ENOENT";
-		vi.mocked(readFile).mockRejectedValue(error);
+    const config = await loadConfig("config.json");
+    expect(config).toEqual(validConfig);
+    expect(readFile).toHaveBeenCalledWith("config.json", "utf-8");
+  });
 
-		await expect(loadConfig("missing.json")).rejects.toThrow(
-			"Config file not found: missing.json",
-		);
-	});
+  it("should throw error if file not found", async () => {
+    const error = new Error("ENOENT") as any;
+    error.code = "ENOENT";
+    vi.mocked(readFile).mockRejectedValue(error);
 
-	it("should throw error on invalid JSON", async () => {
-		vi.mocked(readFile).mockResolvedValue("invalid json");
+    await expect(loadConfig("missing.json")).rejects.toThrow(
+      "Config file not found: missing.json",
+    );
+  });
 
-		await expect(loadConfig("invalid.json")).rejects.toThrow(
-			"Invalid JSON in config file: invalid.json",
-		);
-	});
+  it("should throw error on invalid JSON", async () => {
+    vi.mocked(readFile).mockResolvedValue("invalid json");
 
-	it("should throw error on validation failure", async () => {
-		const invalidConfig = {
-			mcps: "invalid", // should be an object
-		};
-		vi.mocked(readFile).mockResolvedValue(JSON.stringify(invalidConfig));
+    await expect(loadConfig("invalid.json")).rejects.toThrow(
+      "Invalid JSON in config file: invalid.json",
+    );
+  });
 
-		await expect(loadConfig("invalid_schema.json")).rejects.toThrow(
-			"Config validation failed:",
-		);
-	});
+  it("should throw error on validation failure", async () => {
+    const invalidConfig = {
+      mcps: "invalid", // should be an object
+    };
+    vi.mocked(readFile).mockResolvedValue(JSON.stringify(invalidConfig));
+
+    await expect(loadConfig("invalid_schema.json")).rejects.toThrow(
+      "Config validation failed:",
+    );
+  });
 });
