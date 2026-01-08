@@ -75,6 +75,19 @@ const main = async () => {
     // Load configuration
     const config = await loadConfig(args.config);
 
+    // Re-initialize logger if config specifies logging settings and they weren't overridden by CLI
+    if (config.logging) {
+      const cliLevelProvided = args["log-level"] !== undefined;
+      const cliPrettyProvided = args["log-pretty"] !== undefined;
+
+      if (!cliLevelProvided || !cliPrettyProvided) {
+        initLogger({
+          level: cliLevelProvided ? logLevel : config.logging.level,
+          pretty: cliPrettyProvided ? (args["log-pretty"] ?? false) : config.logging.pretty,
+        });
+      }
+    }
+
     // Initialize client manager
     const clientManager = new ClientManager();
     await clientManager.init(config.mcps);

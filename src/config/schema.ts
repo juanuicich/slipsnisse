@@ -56,9 +56,18 @@ export const ProviderConfigSchema = z.object({
 });
 
 /**
+ * Logging configuration schema
+ */
+export const LoggingConfigSchema = z.object({
+  level: z.enum(["debug", "info", "warn", "error", "silent"]).default("info"),
+  pretty: z.boolean().default(false),
+});
+
+/**
  * Root configuration schema
  */
 export const SlipsnisseConfigSchema = z.object({
+  logging: LoggingConfigSchema.optional().describe("Logging configuration"),
   mcps: z
     .record(z.string(), McpConfigSchema)
     .describe("Map of downstream MCP server configurations"),
