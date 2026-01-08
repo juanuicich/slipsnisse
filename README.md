@@ -91,4 +91,4 @@ Slipsnisse executes binaries defined in the `mcps` configuration. It should only
 
 ## License
 
-ISC
+WIP, TBC
