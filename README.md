@@ -5,7 +5,7 @@
 ## How it works
 
 Slipsnisse creates a semantic buffer:
-1. **The Orchestrator** (e.g., Claude 3.5 Sonnet) sees a clean "Expert Tool".
+1. **The Orchestrator** (e.g., Claude Opus 4.5) sees a clean "Expert Tool".
 2. **Slipsnisse** coordinates downstream MCPs (filesystem, docs, search) and cheaper "Flash" models (e.g., Gemini 2.0 Flash) to execute complex workflows.
 3. **The Result** is synthesized and returned to the Orchestrator, keeping its context window clean.
 
