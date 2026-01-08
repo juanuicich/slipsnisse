@@ -1,5 +1,7 @@
+import { type ChildProcess, spawn as originalSpawn } from "node:child_process";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { initLogger } from "../logger.js";
+import type { ClientManager as ClientManagerType } from "./client-manager.js";
 
 // Hoisted mocks for use with doMock
 const mockedMethods = {
@@ -10,9 +12,9 @@ const mockedMethods = {
 };
 
 describe("ClientManager", () => {
-  let ClientManager: any;
-  let spawn: any;
-  let manager: any;
+  let ClientManager: typeof ClientManagerType;
+  let spawn: typeof originalSpawn;
+  let manager: ClientManagerType;
 
   beforeAll(async () => {
     initLogger({ level: "silent" });
@@ -123,12 +125,11 @@ describe("ClientManager", () => {
       s1: { command: "c1", args: [], transport: "stdio" as const },
     };
     await manager.init(mcpConfigs);
-
     await manager.shutdown();
 
     expect(mockedMethods.mockClose).toHaveBeenCalled();
 
-    const spawnResult = vi.mocked(spawn).mock.results[0]?.value;
+    const spawnResult = vi.mocked(spawn).mock.results[0]?.value as unknown as ChildProcess;
     expect(spawnResult.kill).toHaveBeenCalled();
   });
 });

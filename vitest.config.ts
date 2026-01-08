@@ -5,10 +5,6 @@ export default defineConfig({
     environment: "node",
     include: ["src/**/*.test.ts", "test/**/*.test.ts"],
     exclude: ["dist/**/*", "node_modules/**/*"],
-    pool: "threads",
-    threads: {
-      isolate: true,
-      singleThread: false,
-    },
+    isolate: true,
   },
 });
