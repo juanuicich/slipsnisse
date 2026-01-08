@@ -52,6 +52,14 @@ Launch Slipsnisse with a path to your configuration file:
 npx slipsnisse --config ./config.json --log-level info
 ```
 
+### Using Additional Providers
+
+Slipsnisse comes with core providers pre-installed. To use additional Vercel AI SDK providers (like `@ai-sdk/azure` or `@ai-sdk/mistral`) when running via `npx`, inject them using the `-p` flag:
+
+```bash
+npx -p slipsnisse -p @ai-sdk/mistral -p @ai-sdk/azure slipsnisse --config ./config.json
+```
+
 ### Configuration
 
 Slipsnisse is driven by a JSON configuration file. 
