@@ -6,6 +6,7 @@
 import { generateText, type LanguageModel, stepCountIs, type Tool } from "ai";
 import type { Logger } from "pino";
 import type { SlipsnisseConfig, ToolConfig } from "../config/schema.js";
+import { ToolExecutionError } from "../errors.js";
 import { createLogger } from "../logger.js";
 import type { ClientManager } from "../mcp/client-manager.js";
 import { getModel } from "../providers/registry.js";
@@ -176,12 +177,26 @@ export class ExecutionEngine {
 
 			return { text, stepCount: steps.length };
 		} catch (err) {
+			if (err instanceof ToolExecutionError) {
+				throw err;
+			}
+
 			const message = err instanceof Error ? err.message : String(err);
+
+			if (message.includes("Timeout") || message.includes("signal is aborted")) {
+				getLog().error({ tool: toolName, error: message }, "Execution timed out");
+				throw new ToolExecutionError("EXECUTION_TIMEOUT", `Execution timed out: ${message}`, {
+					toolName,
+				});
+			}
+
 			getLog().error(
 				{ tool: toolName, error: message, args },
 				"Composite tool execution failed",
 			);
-			throw new Error(`Execution failed for '${toolName}': ${message}`);
+			throw new ToolExecutionError("LLM_ERROR", `Provider error: ${message}`, {
+				toolName,
+			});
 		}
 	}
 

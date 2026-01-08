@@ -140,19 +140,19 @@ Refer to [technical design](docs/technical_design.md) if you need technical deta
 ## Phase 4: Error Handling & Resilience
 
 ### 4.1 Downstream MCP Failures
-- [ ] Detect process exit/crash in Client Manager
-- [ ] Mark failed MCP as unavailable
-- [ ] Return `ToolExecutionError` to orchestrator with clear message
-- [ ] Log error with process exit code and stderr
+- [x] Detect process exit/crash in Client Manager
+- [x] Mark failed MCP as unavailable
+- [x] Return `ToolExecutionError` to orchestrator with clear message
+- [x] Log error with process exit code and stderr
 
 ### 4.2 Tool Resolution Failures
-- [ ] If tool call references unavailable MCP, return error (don't crash)
-- [ ] Include which MCP is unavailable in error message
+- [x] If tool call references unavailable MCP, return error (don't crash)
+- [x] Include which MCP is unavailable in error message
 
 ### 4.3 LLM Errors
-- [ ] Catch provider errors (rate limits, auth failures, etc.)
-- [ ] Wrap in `ToolExecutionError` with actionable message
-- [ ] Log full error details at `error` level
+- [x] Catch provider errors (rate limits, auth failures, etc.)
+- [x] Wrap in `ToolExecutionError` with actionable message
+- [x] Log full error details at `error` level
 
 ---
 

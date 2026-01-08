@@ -4,6 +4,7 @@ import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import type { Logger } from "pino";
 import type { McpConfig } from "../config/schema.js";
+import { ToolExecutionError } from "../errors.js";
 import { createLogger } from "../logger.js";
 import type { McpConnection, NamespacedTool, ToolCallResult } from "./types.js";
 
@@ -114,14 +115,22 @@ export class ClientManager {
 		});
 
 		proc.stderr?.on("data", (data: Buffer) => {
-			getLog().debug({ serverId, stderr: data.toString() }, "MCP stderr");
+			const message = data.toString();
+			getLog().debug({ serverId, stderr: message }, "MCP stderr");
 		});
 
 		proc.on("exit", (code: number | null) => {
-			getLog().warn({ serverId, exitCode: code }, "MCP process exited");
 			const conn = this.connections.get(serverId);
-			if (conn) {
-				conn.status = "disconnected";
+			if (code !== 0 && code !== null) {
+				getLog().error({ serverId, exitCode: code }, "MCP process crashed");
+				if (conn) {
+					conn.status = "failed";
+				}
+			} else {
+				getLog().warn({ serverId, exitCode: code }, "MCP process exited");
+				if (conn) {
+					conn.status = "disconnected";
+				}
 			}
 		});
 
@@ -186,24 +195,37 @@ export class ClientManager {
 
 		const conn = this.connections.get(serverId);
 		if (!conn) {
-			throw new Error(`Unknown MCP server: ${serverId}`);
+			throw new ToolExecutionError("MCP_UNAVAILABLE", "Unknown MCP server", {
+				serverId,
+			});
 		}
 		if (conn.status !== "connected") {
-			throw new Error(
+			throw new ToolExecutionError(
+				"MCP_UNAVAILABLE",
 				`MCP server unavailable: ${serverId} (status: ${conn.status})`,
+				{ serverId, status: conn.status },
 			);
 		}
 
 		getLog().debug({ serverId, toolName, args }, "Calling tool");
 
-		const result = await conn.client.callTool({
-			name: toolName,
-			arguments: args,
-		});
-		return {
-			content: result.content,
-			isError: result.isError === true,
-		};
+		try {
+			const result = await conn.client.callTool({
+				name: toolName,
+				arguments: args,
+			});
+			return {
+				content: result.content,
+				isError: result.isError === true,
+			};
+		} catch (err) {
+			const message = err instanceof Error ? err.message : String(err);
+			getLog().error({ serverId, toolName, error: message }, "MCP tool call failed");
+			throw new ToolExecutionError("LLM_ERROR", `MCP tool call failed: ${message}`, {
+				serverId,
+				toolName,
+			});
+		}
 	}
 
 	/**
