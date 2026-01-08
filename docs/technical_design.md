@@ -33,75 +33,103 @@ graph LR
 ### 2.2 Core Libraries
 
 * **Protocol Plumbing:** `@modelcontextprotocol/sdk`
-* Used for the **Server** (exposed to Host).
-* Used for **Clients** (connecting to downstream tools).
-* Supports both `Stdio` (default) and `SSE` transports.
+  * Used for the **Server** (exposed to Host).
+  * Used for **Clients** (connecting to downstream tools).
+  * Supports both `Stdio` (default) and `SSE` transports.
 
+* **Intelligence:** `ai` (Vercel AI SDK v6)
+  * **Providers:** All providers exposed by Vercel AI SDK v6 (Google, OpenAI, Anthropic, etc.). Provider availability is introspected from SDK types.
 
-* **Intelligence:** `ai` (Vercel AI SDK).
-* **Providers:** `@ai-sdk/google`, `@ai-sdk/openai`, `@ai-sdk/anthropic`, etc.
-* **Validation:** `zod`.
-* **Config:** `js-yaml` or native JSON/TS.
+* **Validation:** `zod`
+* **Config:** JSON with JSON Schema validation
+* **Logging:** `pino` + `pino-pretty`
+* **Testing:** `vitest`
+* **Package Manager:** `pnpm`
+* **Runtime:** Node.js with `tsx` for development
 
 ## 3. Configuration Schema
 
-The behavior is driven entirely by a configuration file.
+The behavior is driven entirely by a JSON configuration file.
 
 **Runtime Requirement:** Slipsnisse **must** be launched with a pointer to this config file.
-`slipsnisse --config ./slipsnisse.config.json`
+```bash
+npx slipsnisse --config ./slipsnisse.config.json --log-level info
+```
+
+**CLI Arguments:**
+* `--config <path>` — Path to JSON config file (required)
+* `--log-level <level>` — Log level: `debug`, `info`, `warn`, `error` (default: `info`)
+* `--log-pretty` — Enable human-readable log output (default: JSON)
 
 ### 3.1 Schema Definition
 
-```yaml
-# Downstream MCP Connections
-mcps:
-  <server_id>:
-    command: <string>      # Executable (npx, uvx, python, etc.)
-    args: <string[]>       # Arguments for the command
-    env: <map>             # Optional environment variables
-
-# Exposed Composite Tools
-tools:
-  - name: <string>
-    description: <string>  # Exposed to the Orchestrator
-    arguments:             # JSON Schema/Zod definition for input args
-      <arg_name>: <type>   
-    
-    # Tool Permission Whitelist
-    internal_tools:        
-      <server_id>: [<tool_name>, <tool_name>]
-      
-    # Intelligence Configuration
-    provider: <string>      # e.g., "google", "openai", "anthropic"
-    model: <string>         # e.g., "gemini-2.0-flash-001"
-    system_prompt: <string> # Optional override
-
+```json
+{
+  "mcps": {
+    "<server_id>": {
+      "command": "<string>",
+      "args": ["<string>"],
+      "env": { "<key>": "<value>" },
+      "transport": "stdio | sse",
+      "url": "<string for SSE transport>"
+    }
+  },
+  "tools": [
+    {
+      "name": "<string>",
+      "description": "<string>",
+      "arguments": { "<JSON Schema>" },
+      "internal_tools": {
+        "<server_id>": ["<tool_name>"]
+      },
+      "provider": "<string>",
+      "model": "<string>",
+      "system_prompt": "<string (optional)>"
+    }
+  ]
+}
 ```
+
+**Notes:**
+* `transport` defaults to `"stdio"` if omitted
+* `url` is required when `transport: "sse"`
+* `provider` accepts any provider supported by Vercel AI SDK v6
 
 ### 3.2 Example Configuration
 
-```yaml
-mcps:
-  filesystem:
-    command: npx
-    args: ["-y", "@modelcontextprotocol/server-filesystem", "/src"]
-  
-  rust_docs:
-    command: uvx
-    args: ["mcp-rust-docs"]
-
-tools:
-  - name: research_dependency
-    description: "Finds optimal libraries and usage examples for a specific programming problem."
-    arguments:
-      query: { type: "string" }
-    internal_tools:
-      filesystem: [read_file, list_directory]
-      rust_docs: [search, read_page]
-    provider: google
-    model: gemini-2.0-flash-001
-    system_prompt: "You are a Rust expert. Search docs, read files to check compatibility, and synthesize an answer."
-
+```json
+{
+  "mcps": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/src"]
+    },
+    "rust_docs": {
+      "command": "uvx",
+      "args": ["mcp-rust-docs"]
+    }
+  },
+  "tools": [
+    {
+      "name": "research_dependency",
+      "description": "Finds optimal libraries and usage examples for a specific programming problem.",
+      "arguments": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string" }
+        },
+        "required": ["query"]
+      },
+      "internal_tools": {
+        "filesystem": ["read_file", "list_directory"],
+        "rust_docs": ["search", "read_page"]
+      },
+      "provider": "google",
+      "model": "gemini-2.0-flash-001",
+      "system_prompt": "You are a Rust expert. Search docs, read files to check compatibility, and synthesize an answer."
+    }
+  ]
+}
 ```
 
 ### 3.3 JSON Schema
@@ -121,7 +149,9 @@ For validation and reusability, strict adherence to this schema is required.
         "properties": {
           "command": { "type": "string" },
           "args": { "type": "array", "items": { "type": "string" } },
-          "env": { "type": "object", "additionalProperties": { "type": "string" } }
+          "env": { "type": "object", "additionalProperties": { "type": "string" } },
+          "transport": { "type": "string", "enum": ["stdio", "sse"], "default": "stdio" },
+          "url": { "type": "string", "description": "Required when transport is sse" }
         },
         "required": ["command", "args"]
       }
@@ -143,7 +173,7 @@ For validation and reusability, strict adherence to this schema is required.
               "items": { "type": "string" }
             }
           },
-          "provider": { "type": "string", "enum": ["google", "openai", "anthropic"] },
+          "provider": { "type": "string", "description": "Any Vercel AI SDK v6 provider (google, openai, anthropic, etc.)" },
           "model": { "type": "string" },
           "system_prompt": { "type": "string" }
         },
@@ -213,11 +243,18 @@ When the Orchestrator calls a Slipsnisse tool:
 * The final text generated by the loop is returned to the Orchestrator.
 * Intermediate "thinking" steps are discarded (or optionally logged for debug), keeping the Orchestrator's context clean.
 
-### 4.4 Error Handling
+### 4.4 Startup Behavior
+
+* **Eager Initialization:** All downstream MCPs are spawned at startup.
+* **Availability Tracking:** Only tools backed by successfully connected MCPs are registered.
+* **Startup Errors:** Failures to spawn MCPs are logged but do not prevent server startup.
+
+### 4.5 Error Handling
 
 * **Process Death:** If a downstream MCP dies, Slipsnisse throws a `ToolExecutionError` to the Orchestrator. (Auto-restart is out of scope for MVP).
 * **Context Overflow:** We rely on the large context windows of modern "Flash/Mini" models.
 * **Timeout:** A global `AbortSignal` (e.g., 60s) is passed to `generateText`.
+* **Logging:** All errors are logged via Pino with full context for debugging.
 
 ## 5. Development Roadmap (MVP)
 
@@ -233,6 +270,7 @@ When the Orchestrator calls a Slipsnisse tool:
 * Implement the `ProviderFactory` with dynamic imports.
 * Wire up `generateText` inside the tool handler.
 * Implement tool wrapping (converting MCP JSON-RPC calls to Vercel SDK tools).
+
 
 ## 6. Security Considerations
 
