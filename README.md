@@ -72,7 +72,7 @@ Slipsnisse is driven by a JSON configuration file.
         "filesystem": ["read_file", "list_directory"]
       },
       "provider": "google",
-      "model": "gemini-2.0-flash-001",
+      "model": "gemini-3-flash-preview",
       "system_prompt": "You are a senior engineer. Use the filesystem to research the codebase."
     }
   ]
