@@ -97,4 +97,27 @@ describe("SlipsnisseConfigSchema", () => {
         const result = SlipsnisseConfigSchema.safeParse(config);
         expect(result.success).toBe(true);
     });
+    it("should validate a configuration with providers", () => {
+        const config = {
+            mcps: {},
+            providers: {
+                openai: {
+                    provider: "openai",
+                    apiKey: "test-key",
+                    endpoint: "https://api.openai.com/v1",
+                    providerOptions: {
+                        organization: "org-123"
+                    }
+                }
+            },
+            tools: []
+        };
+
+        const result = SlipsnisseConfigSchema.safeParse(config);
+        expect(result.success).toBe(true);
+        if (result.success) {
+            expect(result.data.providers?.openai.provider).toBe("openai");
+            expect(result.data.providers?.openai.apiKey).toBe("test-key");
+        }
+    });
 });

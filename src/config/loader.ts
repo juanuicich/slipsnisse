@@ -13,6 +13,37 @@ const getLog = (): Logger => {
 };
 
 /**
+ * Recursively substitutes environment variables in the format ${VAR_NAME}
+ * in strings, objects, and arrays.
+ * Throws if a variable is referenced but not defined in process.env.
+ */
+function substituteEnvVars(value: unknown): unknown {
+	if (typeof value === "string") {
+		return value.replace(/\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g, (match, varName) => {
+			const envVal = process.env[varName];
+			if (envVal === undefined) {
+				throw new Error(`Environment variable not found: ${varName}`);
+			}
+			return envVal;
+		});
+	}
+
+	if (Array.isArray(value)) {
+		return value.map(substituteEnvVars);
+	}
+
+	if (value !== null && typeof value === "object") {
+		const result: Record<string, unknown> = {};
+		for (const [key, val] of Object.entries(value)) {
+			result[key] = substituteEnvVars(val);
+		}
+		return result;
+	}
+
+	return value;
+}
+
+/**
  * Load and validate configuration from a JSON file.
  * Throws descriptive errors on parse or validation failure.
  */
@@ -39,7 +70,15 @@ export const loadConfig = async (
 		throw new Error(`Invalid JSON in config file: ${configPath}`);
 	}
 
-	const result = SlipsnisseConfigSchema.safeParse(json);
+	// Substitute environment variables before validation
+	let substituted: unknown;
+	try {
+		substituted = substituteEnvVars(json);
+	} catch (err) {
+		throw new Error(`Configuration substitution failed: ${(err as Error).message}`);
+	}
+
+	const result = SlipsnisseConfigSchema.safeParse(substituted);
 	if (!result.success) {
 		const issues = result.error.issues
 			.map((i) => `  - ${i.path.join(".")}: ${i.message}`)
