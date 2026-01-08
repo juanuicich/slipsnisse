@@ -32,67 +32,67 @@ Refer to [technical design](docs/technical_design.md) if you need technical deta
 ## Phase 1: The Office (Infrastructure)
 
 ### 1.1 Logger Module
-- [ ] Create `src/logger.ts`
-- [ ] Initialize Pino logger with configurable level
-- [ ] Expose `--log-level` CLI arg (debug, info, warn, error)
-- [ ] Support `--log-pretty` flag for human-readable dev output
+- [x] Create `src/logger.ts`
+- [x] Initialize Pino logger with configurable level
+- [x] Expose `--log-level` CLI arg (debug, info, warn, error)
+- [x] Support `--log-pretty` flag for human-readable dev output
 
 ### 1.2 Config Schema
-- [ ] Create `src/config/schema.ts`
-- [ ] Define Zod schema matching JSON Schema from section 3.3:
+- [x] Create `src/config/schema.ts`
+- [x] Define Zod schema matching JSON Schema from section 3.3:
   - `mcps`: Record of `{ command, args, env? }`
   - `tools`: Array of `{ name, description, arguments?, internal_tools, provider, model, system_prompt? }`
-- [ ] Export TypeScript types inferred from Zod schema
+- [x] Export TypeScript types inferred from Zod schema
 
 ### 1.3 Config Loader
-- [ ] Create `src/config/loader.ts`
-- [ ] Read JSON file from path provided via `--config` CLI arg
-- [ ] Validate against Zod schema, throw descriptive errors on failure
-- [ ] Return typed config object
+- [x] Create `src/config/loader.ts`
+- [x] Read JSON file from path provided via `--config` CLI arg
+- [x] Validate against Zod schema, throw descriptive errors on failure
+- [x] Return typed config object
 
 ### 1.4 CLI Entry Point
-- [ ] Create `src/cli.ts`
-- [ ] Parse args: `--config <path>`, `--log-level`, `--log-pretty`
-- [ ] Validate `--config` is provided and file exists
-- [ ] Bootstrap application (load config → start server)
+- [x] Create `src/cli.ts`
+- [x] Parse args: `--config <path>`, `--log-level`, `--log-pretty`
+- [x] Validate `--config` is provided and file exists
+- [x] Bootstrap application (load config → start server)
 
 ### 1.5 Client Manager
-- [ ] Create `src/mcp/client-manager.ts`
-- [ ] For each entry in `mcps` config:
+- [x] Create `src/mcp/client-manager.ts`
+- [x] For each entry in `mcps` config:
   - Spawn child process with `command` + `args` + `env`
   - Connect via `StdioClientTransport`
   - Call `client.listTools()` to discover available tools
   - Log errors if spawn fails, mark server as unavailable
-- [ ] Store map: `serverId → { client, tools[] }`
-- [ ] Implement namespacing: `serverId__toolName` for internal disambiguation
-- [ ] Expose method: `getAvailableTools(internal_tools config) → namespaced tool list`
-- [ ] Expose method: `callTool(namespacedName, args) → result`
+- [x] Store map: `serverId → { client, tools[] }`
+- [x] Implement namespacing: `serverId__toolName` for internal disambiguation
+- [x] Expose method: `getAvailableTools(internal_tools config) → namespaced tool list`
+- [x] Expose method: `callTool(namespacedName, args) → result`
 
 ### 1.6 SSE Client Support
-- [ ] Extend Client Manager to detect transport type (stdio vs SSE)
-- [ ] Add optional `transport: "stdio" | "sse"` and `url` fields to MCP config schema
-- [ ] Use `SSEClientTransport` when `transport: "sse"`
+- [x] Extend Client Manager to detect transport type (stdio vs SSE)
+- [x] Add optional `transport: "stdio" | "sse"` and `url` fields to MCP config schema
+- [x] Use `SSEClientTransport` when `transport: "sse"`
 
 ---
 
 ## Phase 2: The Bureaucracy (Server)
 
 ### 2.1 MCP Server Initialization
-- [ ] Create `src/server.ts`
-- [ ] Initialize `McpServer` from `@modelcontextprotocol/sdk`
-- [ ] Configure Stdio transport for host communication
+- [x] Create `src/server.ts`
+- [x] Initialize `McpServer` from `@modelcontextprotocol/sdk`
+- [x] Configure Stdio transport for host communication
 
 ### 2.2 Dynamic Tool Registration (Composite Tools)
-- [ ] For each **composite tool** in `tools` config array (e.g., `research_dependency`):
+- [x] For each **composite tool** in `tools` config array (e.g., `research_dependency`):
   - These are the tools exposed to the Orchestrator (NOT the downstream MCP tools)
   - Convert `arguments` JSON Schema to Zod schema (or use Zod's JSON Schema compat)
   - Register tool with `server.tool(name, description, schema, handler)`
-- [ ] Only register composite tools whose `internal_tools` are fully resolvable (all referenced MCPs available)
-- [ ] Log warning for composite tools that cannot be registered due to missing MCPs
+- [x] Only register composite tools whose `internal_tools` are fully resolvable (all referenced MCPs available)
+- [x] Log warning for composite tools that cannot be registered due to missing MCPs
 
 ### 2.3 Tool Handler Stub
-- [ ] Create placeholder handler that logs invocation and returns "not implemented"
-- [ ] Wire up to registered tools for Phase 2 testing
+- [x] Create placeholder handler that logs invocation and returns "not implemented"
+- [x] Wire up to registered tools for Phase 2 testing
 
 ---
 

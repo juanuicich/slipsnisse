@@ -15,7 +15,7 @@ graph LR
     Host[Orchestrator Agent] <-->|MCP Protocol| Slipsnisse[Slipsnisse Server]
     
     subgraph "Slipsnisse Runtime"
-        Config[YAML Config]
+        Config[JSON Config]
         Manager[Client Manager]
         Registry[Provider Registry]
         Loop[Vercel AI SDK Loop]
@@ -259,7 +259,7 @@ When the Orchestrator calls a Slipsnisse tool:
 ## 5. Development Roadmap (MVP)
 
 1. **Phase 1: The Office (Infrastructure)**
-* Implement `ConfigLoader` (YAML + Zod validation).
+* Implement `ConfigLoader` (JSON + Zod validation).
 * Implement `ClientManager` using `@modelcontextprotocol/sdk` to connect to `stdio` processes.
 
 2. **Phase 2: The Bureaucracy (Server)**
