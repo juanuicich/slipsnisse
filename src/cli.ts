@@ -9,6 +9,7 @@ import { initLogger, createLogger, type LogLevel } from "./logger.js";
 import { loadConfig } from "./config/loader.js";
 import { ClientManager } from "./mcp/client-manager.js";
 import { createServer, startServer } from "./server.js";
+import { ExecutionEngine } from "./execution/engine.js";
 
 const LOG_LEVELS = ["debug", "info", "warn", "error"] as const;
 
@@ -78,8 +79,12 @@ const main = async () => {
     const clientManager = new ClientManager();
     await clientManager.init(config.mcps);
 
+    // Initialize execution engine
+    const engine = new ExecutionEngine();
+    await engine.init(config, clientManager);
+
     // Create and start MCP server
-    const server = createServer(config, clientManager);
+    const server = createServer(config, clientManager, engine);
     await startServer(server);
 
     // Handle shutdown

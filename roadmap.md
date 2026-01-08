@@ -99,41 +99,41 @@ Refer to [technical design](docs/technical_design.md) if you need technical deta
 ## Phase 3: The Delegation (Intelligence)
 
 ### 3.1 Provider Registry
-- [ ] Create `src/providers/registry.ts`
-- [ ] Implement dynamic import pattern from section 4.1
-- [ ] Cache loaded providers in memory
-- [ ] Introspect Vercel AI SDK v6 types to enumerate all available providers
-- [ ] Throw descriptive error if requested provider not installed
+- [x] Create `src/providers/registry.ts`
+- [x] Implement dynamic import pattern from section 4.1
+- [x] Cache loaded providers in memory
+- [x] Introspect Vercel AI SDK v6 types to enumerate all available providers
+- [x] Throw descriptive error if requested provider not installed
 
 ### 3.2 Tool Wrapper Factory
-- [ ] Create `src/execution/tool-wrapper.ts`
-- [ ] Convert MCP tool definitions to Vercel AI SDK tool format:
+- [x] Create `src/execution/tool-wrapper.ts`
+- [x] Convert MCP tool definitions to Vercel AI SDK tool format:
   - `description` from MCP tool
   - `parameters` schema (Zod)
   - `execute` function that calls `ClientManager.callTool()`
-- [ ] Handle namespacing (LLM sees `filesystem__read_file`, wrapper resolves to correct client)
+- [x] Handle namespacing (LLM sees `filesystem__read_file`, wrapper resolves to correct client)
 
 ### 3.3 Execution Engine
-- [ ] Create `src/execution/engine.ts`
-- [ ] **At startup**, for each composite tool, pre-build and cache:
+- [x] Create `src/execution/engine.ts`
+- [x] **At startup**, for each composite tool, pre-build and cache:
   - Resolved model instance (provider + model via Provider Registry)
   - System prompt (tool's `system_prompt` or default)
   - Wrapped Vercel SDK tools (from `internal_tools` config)
-- [ ] Store cached context in a `Map<toolName, ToolExecutionContext>`
-- [ ] **Per invocation**, the handler only:
+- [x] Store cached context in a `Map<toolName, ToolExecutionContext>`
+- [x] **Per invocation**, the handler only:
   1. Retrieve cached `ToolExecutionContext`
   2. Call `generateText({ model, system, prompt: userArgs, tools, maxSteps: 10, abortSignal })`
   3. Return final text to caller
-- [ ] Implement 60s timeout via `AbortSignal.timeout(60000)`
+- [x] Implement 60s timeout via `AbortSignal.timeout(60000)`
 
 ### 3.4 Wire Execution to Tool Handlers
-- [ ] Replace stub handlers from 2.3 with actual Execution Engine calls
-- [ ] Pass tool arguments as user prompt to subagent
+- [x] Replace stub handlers from 2.3 with actual Execution Engine calls
+- [x] Pass tool arguments as user prompt to subagent
 
 ### 3.5 Debug Logging
-- [ ] Log intermediate tool calls at `debug` level
-- [ ] Log final response at `info` level
-- [ ] Log errors with full context
+- [x] Log intermediate tool calls at `debug` level
+- [x] Log final response at `info` level
+- [x] Log errors with full context
 
 ---
 

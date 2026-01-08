@@ -7,6 +7,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z, type ZodTypeAny, type ZodRawShape } from "zod";
 import type { SlipsnisseConfig, ToolConfig } from "./config/schema.js";
 import type { ClientManager } from "./mcp/client-manager.js";
+import { ExecutionEngine } from "./execution/engine.js";
 import { createLogger } from "./logger.js";
 import type { Logger } from "pino";
 
@@ -44,7 +45,9 @@ const jsonSchemaToZod = (schema: Record<string, unknown>): ZodTypeAny => {
       return z.array(items ? jsonSchemaToZod(items) : z.unknown());
     }
     case "object": {
-      const properties = schema.properties as Record<string, Record<string, unknown>> | undefined;
+      const properties = schema.properties as
+        | Record<string, Record<string, unknown>>
+        | undefined;
       const required = (schema.required as string[]) || [];
 
       if (!properties) {
@@ -65,27 +68,45 @@ const jsonSchemaToZod = (schema: Record<string, unknown>): ZodTypeAny => {
 };
 
 /**
- * Create stub handler for composite tools.
- * Returns a function that logs invocation and returns placeholder response.
+ * Create handler for composite tools that uses the ExecutionEngine.
  */
-const createStubHandler = (tool: ToolConfig) => {
+const createToolHandler = (tool: ToolConfig, engine: ExecutionEngine) => {
   return async (args: Record<string, unknown>) => {
-    getLog().info({ tool: tool.name, args }, "Tool invoked (stub handler)");
-    return {
-      content: [
-        {
-          type: "text" as const,
-          text: `Tool '${tool.name}' invoked with args: ${JSON.stringify(args)}. Execution not implemented (Phase 3).`,
-        },
-      ],
-    };
+    try {
+      const result = await engine.execute(tool.name, args);
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: result.text,
+          },
+        ],
+      };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      getLog().error({ tool: tool.name, error: message, args }, "Tool handler error");
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: `Error executing '${tool.name}': ${message}`,
+          },
+        ],
+        isError: true,
+      };
+    }
   };
 };
 
 /**
  * Create and initialize the MCP server with tools from config.
+ * ExecutionEngine must be initialized before calling this.
  */
-export const createServer = (config: SlipsnisseConfig, clientManager: ClientManager): McpServer => {
+export const createServer = (
+  config: SlipsnisseConfig,
+  clientManager: ClientManager,
+  engine: ExecutionEngine
+): McpServer => {
   const server = new McpServer({
     name: "slipsnisse",
     version: "1.0.0",
@@ -97,7 +118,19 @@ export const createServer = (config: SlipsnisseConfig, clientManager: ClientMana
       const missingServers = Object.keys(tool.internal_tools).filter(
         (serverId) => !clientManager.hasRequiredServers({ [serverId]: [] })
       );
-      getLog().warn({ tool: tool.name, missingServers }, "Skipping tool registration: required MCP servers unavailable");
+      getLog().warn(
+        { tool: tool.name, missingServers },
+        "Skipping tool registration: required MCP servers unavailable"
+      );
+      continue;
+    }
+
+    // Check if execution context was built
+    if (!engine.hasContext(tool.name)) {
+      getLog().warn(
+        { tool: tool.name },
+        "Skipping tool registration: execution context unavailable"
+      );
       continue;
     }
 
@@ -107,7 +140,12 @@ export const createServer = (config: SlipsnisseConfig, clientManager: ClientMana
       : z.object({});
 
     // Register tool with MCP server
-    server.tool(tool.name, tool.description, paramsSchema.shape, createStubHandler(tool));
+    server.tool(
+      tool.name,
+      tool.description,
+      paramsSchema.shape,
+      createToolHandler(tool, engine)
+    );
 
     getLog().info({ tool: tool.name }, "Registered composite tool");
   }
