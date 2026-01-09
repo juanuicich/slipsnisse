@@ -11,7 +11,7 @@ A slightly derogatory term for a corporate drone or "suit" who focuses on superf
 
 Slipsnisse creates a semantic buffer:
 1. **The Orchestrator** (e.g., Claude Opus 4.5) sees a clean "Expert Tool".
-2. **Slipsnisse** coordinates downstream MCPs (filesystem, docs, search) and cheaper "Flash" models (e.g., Gemini 2.0 Flash) to execute complex workflows.
+2. **Slipsnisse** coordinates downstream MCPs (filesystem, docs, search) and cheaper "Flash" models (e.g., Gemini 3 Flash) to execute complex workflows.
 3. **The Result** is synthesized and returned to the Orchestrator, keeping its context window clean.
 
 ## Architecture
@@ -98,7 +98,7 @@ You can use `${VAR_NAME}` syntax anywhere in the configuration values (args, env
         "filesystem": ["read_file", "list_directory"]
       },
       "provider": "google",
-      "model": "gemini-2.0-flash-exp",
+      "model": "gemini-3-flash-exp",
       "temperature": 0.3,
       "system_prompt": "You are a senior engineer. Use the filesystem to research the codebase."
     }
