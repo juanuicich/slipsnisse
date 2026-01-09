@@ -53,7 +53,7 @@ export class ExecutionEngine {
   private contexts = new Map<string, ToolExecutionContext>();
 
   /**
-   * Initialize execution contexts for all composite tools.
+   * Initialise execution contexts for all composite tools.
    * Pre-builds model instances, system prompts, and wrapped tools.
    */
   async init(
@@ -62,7 +62,7 @@ export class ExecutionEngine {
   ): Promise<void> {
     getLog().info(
       { toolCount: config.tools.length },
-      "Initializing execution contexts",
+      "Initialising execution contexts",
     );
 
     for (const tool of config.tools) {
@@ -94,7 +94,7 @@ export class ExecutionEngine {
 
     getLog().info(
       { contextCount: this.contexts.size },
-      "Execution engine initialized",
+      "Execution engine initialised",
     );
   }
 
