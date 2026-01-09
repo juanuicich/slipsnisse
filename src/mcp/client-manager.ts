@@ -27,12 +27,12 @@ export class ClientManager {
   private processes = new Map<string, ChildProcess>();
 
   /**
-   * Initialize connections to all configured MCP servers.
+   * Initialise connections to all configured MCP servers.
    * Failures are logged but don't prevent other servers from connecting.
    */
   async init(mcpConfigs: Record<string, McpConfig>): Promise<void> {
     const entries = Object.entries(mcpConfigs);
-    getLog().info({ count: entries.length }, "Initializing MCP connections");
+    getLog().info({ count: entries.length }, "Initialising MCP connections");
 
     await Promise.all(
       entries.map(([serverId, config]) => this.connectServer(serverId, config)),
@@ -43,7 +43,7 @@ export class ClientManager {
     ).length;
     getLog().info(
       { connected, total: entries.length },
-      "MCP initialization complete",
+      "MCP initialisation complete",
     );
   }
 

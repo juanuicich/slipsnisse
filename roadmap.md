@@ -3,7 +3,7 @@ Refer to [technical design](docs/technical_design.md) if you need technical deta
 
 ## Phase 0: Project Setup
 
-### 0.1 Initialize Project
+### 0.1 Initialise Project
 - [x] `pnpm init`
 - [x] Add `.gitignore` (node_modules, dist, .env, etc.)
 - [x] Configure `tsconfig.json` (target ES2022, module NodeNext, strict mode)
@@ -33,7 +33,7 @@ Refer to [technical design](docs/technical_design.md) if you need technical deta
 
 ### 1.1 Logger Module
 - [x] Create `src/logger.ts`
-- [x] Initialize Pino logger with configurable level
+- [x] Initialise Pino logger with configurable level
 - [x] Expose `--log-level` CLI arg (debug, info, warn, error)
 - [x] Support `--log-pretty` flag for human-readable dev output
 
@@ -77,9 +77,9 @@ Refer to [technical design](docs/technical_design.md) if you need technical deta
 
 ## Phase 2: The Bureaucracy (Server)
 
-### 2.1 MCP Server Initialization
+### 2.1 MCP Server Initialisation
 - [x] Create `src/server.ts`
-- [x] Initialize `McpServer` from `@modelcontextprotocol/sdk`
+- [x] Initialise `McpServer` from `@modelcontextprotocol/sdk`
 - [x] Configure Stdio transport for host communication
 
 ### 2.2 Dynamic Tool Registration (Composite Tools)
