@@ -33,15 +33,10 @@
             "description": "The question or topic to search for in the documentation."
           }
         },
-        "required": [
-          "query"
-        ]
+        "required": ["query"]
       },
       "internal_tools": {
-        "context7": [
-          "resolve-library-id",
-          "query-docs"
-        ]
+        "context7": ["resolve-library-id", "query-docs"]
       },
       "provider": "z_ai",
       "model": "glm-4.7",

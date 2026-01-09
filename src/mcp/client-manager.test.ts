@@ -129,7 +129,8 @@ describe("ClientManager", () => {
 
     expect(mockedMethods.mockClose).toHaveBeenCalled();
 
-    const spawnResult = vi.mocked(spawn).mock.results[0]?.value as unknown as ChildProcess;
+    const spawnResult = vi.mocked(spawn).mock.results[0]
+      ?.value as unknown as ChildProcess;
     expect(spawnResult.kill).toHaveBeenCalled();
   });
 });
