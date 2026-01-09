@@ -38,6 +38,12 @@ export const ToolConfigSchema = z.object({
     .describe("Vercel AI SDK provider (google, openai, anthropic, etc.)"),
   model: z.string().describe("Model identifier"),
   system_prompt: z.string().optional().describe("Custom system prompt"),
+  temperature: z
+    .number()
+    .min(0)
+    .max(2)
+    .default(0.3)
+    .describe("Sampling temperature (0-2). Lower = more deterministic"),
 });
 
 /**
