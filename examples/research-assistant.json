@@ -39,7 +39,7 @@
       },
       "provider": "google",
       "model": "gemini-2.0-flash-exp",
-      "system_prompt": "You are a Rust expert. Search docs, read files to check compatibility, and synthesize an answer. Be concise."
+      "system_prompt": "You are a Rust expert. Search docs, read files to check compatibility, and synthesise an answer. Be concise."
     },
     {
       "name": "code_review",

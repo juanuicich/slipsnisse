@@ -15,7 +15,7 @@ const DEFAULT_CONFIG: LoggerConfig = {
 let rootLogger: Logger | null = null;
 
 /**
- * Initialize the root logger. Must be called once at startup.
+ * Initialise the root logger. Must be called once at startup.
  */
 export const initLogger = (config: Partial<LoggerConfig> = {}): Logger => {
   const { level, pretty } = { ...DEFAULT_CONFIG, ...config };
@@ -38,11 +38,11 @@ export const initLogger = (config: Partial<LoggerConfig> = {}): Logger => {
 };
 
 /**
- * Get the root logger. Throws if not initialized.
+ * Get the root logger. Throws if not initialised.
  */
 export const getLogger = (): Logger => {
   if (!rootLogger) {
-    throw new Error("Logger not initialized. Call initLogger() first.");
+    throw new Error("Logger not initialised. Call initLogger() first.");
   }
   return rootLogger;
 };

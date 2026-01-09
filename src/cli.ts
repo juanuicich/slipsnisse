@@ -65,7 +65,7 @@ const main = async () => {
     process.exit(1);
   }
 
-  // Initialize logger
+  // Initialise logger
   initLogger({ level: logLevel, pretty: args["log-pretty"] ?? false });
   const log = createLogger("cli");
 
@@ -75,7 +75,7 @@ const main = async () => {
     // Load configuration
     const config = await loadConfig(args.config);
 
-    // Re-initialize logger if config specifies logging settings and they weren't overridden by CLI
+    // Re-initialise logger if config specifies logging settings and they weren't overridden by CLI
     if (config.logging) {
       const cliLevelProvided = args["log-level"] !== undefined;
       const cliPrettyProvided = args["log-pretty"] !== undefined;
@@ -90,11 +90,11 @@ const main = async () => {
       }
     }
 
-    // Initialize client manager
+    // Initialise client manager
     const clientManager = new ClientManager();
     await clientManager.init(config.mcps);
 
-    // Initialize execution engine
+    // Initialise execution engine
     const engine = new ExecutionEngine();
     await engine.init(config, clientManager);
 
@@ -112,7 +112,7 @@ const main = async () => {
     process.on("SIGINT", shutdown);
     process.on("SIGTERM", shutdown);
 
-    log.info("Slipsnisse initialized and running");
+    log.info("Slipsnisse initialised and running");
   } catch (err) {
     log.error({ error: (err as Error).message }, "Failed to start Slipsnisse");
     process.exit(1);

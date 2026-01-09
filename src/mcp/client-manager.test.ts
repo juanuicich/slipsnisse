@@ -70,7 +70,7 @@ describe("ClientManager", () => {
     mockedMethods.mockClose.mockResolvedValue(undefined);
   });
 
-  it("should initialize connections", async () => {
+  it("should initialise connections", async () => {
     const mcpConfigs = {
       testServer: {
         command: "node",

@@ -12,7 +12,7 @@ A slightly derogatory term for a corporate drone or "suit" who focuses on superf
 Slipsnisse creates a semantic buffer:
 1. **The orchestrator** (e.g., Claude Opus 4.5) sees a clean "Expert Tool".
 2. **Slipsnisse** coordinates downstream MCPs (filesystem, docs, search) and cheaper "Flash" models (e.g., Gemini 3 Flash) to execute complex workflows.
-3. **The Result** is synthesized and returned to the orchestrator, keeping its context window clean.
+3. **The Result** is synthesised and returned to the orchestrator, keeping its context window clean.
 
 ## Architecture
 
@@ -93,7 +93,7 @@ You can use `${VAR_NAME}` syntax anywhere in the configuration values (args, env
   "tools": [
     {
       "name": "research_files",
-      "description": "Analyzes project files to answer specific questions.",
+      "description": "Analyses project files to answer specific questions.",
       "internal_tools": {
         "filesystem": ["read_file", "list_directory"]
       },
@@ -116,6 +116,6 @@ You can use `${VAR_NAME}` syntax anywhere in the configuration values (args, env
 
 Slipsnisse executes binaries defined in the `mcps` configuration. It should only be run in trusted environments. Tool whitelisting ensures subagents only access explicitly granted capabilities.
 
-## License
+## Licence
 
 WIP, TBC
