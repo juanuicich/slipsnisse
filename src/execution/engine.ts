@@ -35,6 +35,7 @@ interface ToolExecutionContext {
   model: LanguageModel;
   systemPrompt: string;
   tools: Record<string, Tool>;
+  temperature: number;
 }
 
 /**
@@ -135,6 +136,7 @@ export class ExecutionEngine {
       model,
       systemPrompt: tool.system_prompt || DEFAULT_SYSTEM_PROMPT,
       tools: wrappedTools,
+      temperature: tool.temperature,
     };
   }
 
@@ -166,6 +168,7 @@ export class ExecutionEngine {
         system: context.systemPrompt,
         prompt,
         tools: context.tools,
+        temperature: context.temperature,
         stopWhen: stepCountIs(MAX_STEPS),
         abortSignal: AbortSignal.timeout(EXECUTION_TIMEOUT_MS),
       });

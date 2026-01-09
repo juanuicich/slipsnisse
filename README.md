@@ -1,6 +1,11 @@
 # Slipsnisse
 
-**Slipsnisse** ("Tie Gnome") is a hierarchical Model Context Protocol (MCP) server that acts as a "middle manager" subagent. It offloads verbose, context-heavy tasks from expensive Orchestrator agents to faster, cheaper models.
+![Slipsnisse](assets/slipsnisse.jpg)
+
+**Slipsnisse** (*noun, Swedish*): Lit. *"Tie-Gnome"*.
+A slightly derogatory term for a corporate drone or "suit" who focuses on superficial process and career climbing rather than deep substance.
+
+**Slipsnisse** is a hierarchical Model Context Protocol (MCP) server that acts as a "middle manager" subagent. It offloads verbose, context-heavy tasks from expensive Orchestrator agents to faster, cheaper models.
 
 ## How it works
 
@@ -94,6 +99,7 @@ You can use `${VAR_NAME}` syntax anywhere in the configuration values (args, env
       },
       "provider": "google",
       "model": "gemini-2.0-flash-exp",
+      "temperature": 0.3,
       "system_prompt": "You are a senior engineer. Use the filesystem to research the codebase."
     }
   ]
