@@ -83,7 +83,9 @@ const main = async () => {
       if (!cliLevelProvided || !cliPrettyProvided) {
         initLogger({
           level: cliLevelProvided ? logLevel : config.logging.level,
-          pretty: cliPrettyProvided ? (args["log-pretty"] ?? false) : config.logging.pretty,
+          pretty: cliPrettyProvided
+            ? (args["log-pretty"] ?? false)
+            : config.logging.pretty,
         });
       }
     }
