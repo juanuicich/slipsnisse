@@ -5,14 +5,14 @@
 **Slipsnisse** (*noun, Swedish*): Lit. *"Tie-Gnome"*.
 A slightly derogatory term for a corporate drone or "suit" who focuses on superficial process and career climbing rather than deep substance.
 
-**Slipsnisse** is a hierarchical Model Context Protocol (MCP) server that acts as a "middle manager" subagent. It offloads verbose, context-heavy tasks from expensive Orchestrator agents to faster, cheaper models.
+**Slipsnisse** is a hierarchical Model Context Protocol (MCP) server that acts as a "middle manager" subagent. It offloads verbose, context-heavy tasks from expensive orchestrator agents to faster, cheaper models.
 
 ## How it works
 
 Slipsnisse creates a semantic buffer:
-1. **The Orchestrator** (e.g., Claude Opus 4.5) sees a clean "Expert Tool".
+1. **The orchestrator** (e.g., Claude Opus 4.5) sees a clean "Expert Tool".
 2. **Slipsnisse** coordinates downstream MCPs (filesystem, docs, search) and cheaper "Flash" models (e.g., Gemini 3 Flash) to execute complex workflows.
-3. **The Result** is synthesized and returned to the Orchestrator, keeping its context window clean.
+3. **The Result** is synthesized and returned to the orchestrator, keeping its context window clean.
 
 ## Architecture
 
