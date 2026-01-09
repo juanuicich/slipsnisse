@@ -1,9 +1,8 @@
 /**
  * Tool Wrapper Factory.
- * Converts MCP tool definitions to Vercel AI SDK tool format.
+ * Converts MCP tool definitions to TanStack AI tool format.
  */
 
-import { type Tool, tool } from "ai";
 import type { Logger } from "pino";
 import { type ZodTypeAny, z } from "zod";
 import { createLogger } from "../logger.js";
@@ -67,25 +66,37 @@ const jsonSchemaToZod = (schema: Record<string, unknown>): ZodTypeAny => {
 };
 
 /**
- * Wrap MCP tools for use with the Vercel AI SDK.
+ * Interface for TanStack AI Tool.
+ * Replicating here to avoid dependency on deep imports or if explicit type isn't exported.
+ */
+export interface TanStackTool {
+  name: string;
+  description: string;
+  parameters: ZodTypeAny;
+  execute: (args: any) => Promise<any>;
+}
+
+/**
+ * Wrap MCP tools for use with TanStack AI.
  *
  * @param tools - Array of namespaced MCP tools
  * @param clientManager - ClientManager instance for executing tool calls
- * @returns Record of Vercel AI SDK tools keyed by namespaced name
+ * @returns Record of TanStack AI tools keyed by namespaced name
  */
 export const wrapTools = (
   tools: NamespacedTool[],
   clientManager: ClientManager,
-): Record<string, Tool> => {
-  const wrapped: Record<string, Tool> = {};
+): Record<string, TanStackTool> => {
+  const wrapped: Record<string, TanStackTool> = {};
 
   for (const mcpTool of tools) {
     const parametersSchema = jsonSchemaToZod(mcpTool.inputSchema);
 
-    wrapped[mcpTool.namespacedName] = tool({
+    wrapped[mcpTool.namespacedName] = {
+      name: mcpTool.namespacedName,
       description: mcpTool.description,
-      inputSchema: parametersSchema,
-      execute: async (args) => {
+      parameters: parametersSchema,
+      execute: async (args: any) => {
         getLog().debug(
           { tool: mcpTool.namespacedName, args },
           "Executing wrapped tool",
@@ -117,9 +128,9 @@ export const wrapTools = (
           return `Error: ${message}`;
         }
       },
-    });
+    };
 
-    getLog().debug({ tool: mcpTool.namespacedName }, "Wrapped tool for AI SDK");
+    getLog().debug({ tool: mcpTool.namespacedName }, "Wrapped tool for TanStack AI");
   }
 
   return wrapped;

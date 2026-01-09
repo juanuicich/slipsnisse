@@ -35,7 +35,7 @@ export const ToolConfigSchema = z.object({
     .describe("Map of server_id to list of allowed tool names"),
   provider: z
     .string()
-    .describe("Vercel AI SDK provider (google, openai, anthropic, etc.)"),
+    .describe("TanStack AI provider (google, openai, anthropic, etc.)"),
   model: z.string().describe("Model identifier"),
   system_prompt: z.string().optional().describe("Custom system prompt"),
 });
@@ -46,7 +46,7 @@ export const ToolConfigSchema = z.object({
 export const ProviderConfigSchema = z.object({
   provider: z
     .string()
-    .describe("Vercel AI SDK provider (google, openai, anthropic, etc.)"),
+    .describe("TanStack AI provider (google, openai, anthropic, etc.)"),
   endpoint: z.string().optional().describe("Custom endpoint URL"),
   apiKey: z.string().optional().describe("API key for the provider"),
   providerOptions: z

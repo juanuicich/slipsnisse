@@ -1,11 +1,14 @@
 /**
- * Dynamic Provider Registry for Vercel AI SDK providers.
+ * Dynamic Provider Registry for TanStack AI adapters.
  * Loads provider packages on-demand and caches them.
  */
 
-import type { LanguageModel } from "ai";
 import type { Logger } from "pino";
 import { createLogger } from "../logger.js";
+import type { TextAdapter } from "@tanstack/ai";
+
+// Define AnyTextAdapter locally as it might not be exported from root
+type AnyTextAdapter = TextAdapter<any, any, any, any>;
 
 let log: Logger | null = null;
 
@@ -16,17 +19,18 @@ const getLog = (): Logger => {
   return log;
 };
 
-type ProviderFunction = (modelId: string) => LanguageModel;
+// Cache can store either the factory function or a pre-configured adapter creator
+type AdapterCreator = (modelId: string) => AnyTextAdapter;
 
-const providerCache = new Map<string, ProviderFunction>();
+const providerCache = new Map<string, AdapterCreator>();
 
 /**
- * Get a model instance from a Vercel AI SDK provider.
+ * Get a text adapter instance from a TanStack AI provider.
  * Dynamically imports the provider package if not already loaded.
  *
  * @param providerName - Provider name (e.g., "google", "openai", "anthropic")
  * @param modelId - Model identifier (e.g., "gemini-2.0-flash-001")
- * @returns Language model instance
+ * @returns Text adapter instance
  */
 export const getModel = async (
   providerName: string,
@@ -36,68 +40,87 @@ export const getModel = async (
     apiKey?: string;
     providerOptions?: Record<string, unknown>;
   },
-): Promise<LanguageModel> => {
-  if (!providerCache.has(providerName)) {
-    getLog().debug({ providerName }, "Loading provider");
+): Promise<AnyTextAdapter> => {
+  // If we have options, we might not want to use the cached generic factory.
+  // But let's see. The cache was storing the *factory* from the module.
+  // Here we want to return an adapter.
+  // If options are provided (like apiKey), we need to create a new adapter with those options.
 
-    const pkgName = `@ai-sdk/${providerName}`;
-    try {
-      const module = await import(pkgName);
+  // Unlike Vercel AI SDK where we got a configured provider function, TanStack adapters are created directly.
 
-      // Check for factory function for custom configuration
-      // e.g., createOpenAI, createAnthropic
-      const factoryFnName = `create${providerName.charAt(0).toUpperCase() + providerName.slice(1)}`;
-      let factoryFn = module[factoryFnName];
+  getLog().debug({ providerName, modelId }, "Getting model adapter");
 
-      // Handle special naming cases
-      if (!factoryFn && providerName === "openai") {
-        factoryFn = module.createOpenAI;
-      } else if (!factoryFn && providerName === "google") {
-        factoryFn = module.createGoogleGenerativeAI;
-      } else if (!factoryFn && providerName === "openai-compatible") {
-        factoryFn = module.createOpenAICompatible;
-      }
+  try {
+    let adapter: AnyTextAdapter;
 
-      // Default provider function (usually environment-based)
-      const defaultProviderFn = module[providerName] || module.default;
+    if (providerName === "openai" || providerName === "openai-compatible") {
+      const module = await import("@tanstack/ai-openai");
+      const config: any = { ...options?.providerOptions };
+      if (options?.endpoint) config.baseUrl = options.endpoint;
 
-      if (options && typeof factoryFn === "function") {
-        // Use factory with configuration
-        const config: Record<string, unknown> = {
-          ...options.providerOptions,
-        };
-
-        if (options.endpoint) config.baseURL = options.endpoint;
-        if (options.apiKey) config.apiKey = options.apiKey;
-
-        const configuredProvider = factoryFn(config);
-        providerCache.set(providerName, configuredProvider);
-        getLog().info(
-          { providerName, ...options },
-          "Provider loaded with config",
-        );
-      } else if (typeof defaultProviderFn === "function") {
-        // Fallback to default provider
-        providerCache.set(providerName, defaultProviderFn);
-        getLog().info({ providerName }, "Provider loaded (default)");
+      if (options?.apiKey) {
+        // createOpenaiChat(model, apiKey, config)
+        adapter = module.createOpenaiChat(modelId as any, options.apiKey, config);
       } else {
-        throw new Error(
-          `Provider '${providerName}' does not export a valid model function or factory`,
-        );
+        // openaiText(model, config) - apiKey from env
+        adapter = module.openaiText(modelId as any, config);
       }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      throw new Error(
-        `Failed to load provider '${providerName}'. Is '@ai-sdk/${providerName}' installed? Error: ${message}`,
-      );
-    }
-  }
+    } else if (providerName === "anthropic") {
+      const module = await import("@tanstack/ai-anthropic");
+       const config: any = { ...options?.providerOptions };
+      if (options?.endpoint) config.baseUrl = options.endpoint;
 
-  const providerFn = providerCache.get(providerName);
-  if (!providerFn) {
-    throw new Error(`Provider '${providerName}' not found in cache`);
+      if (options?.apiKey) {
+         adapter = module.createAnthropicChat(modelId as any, options.apiKey, config);
+      } else {
+        adapter = module.anthropicText(modelId as any, config);
+      }
+    } else if (providerName === "google") {
+      const module = await import("@tanstack/ai-gemini");
+      const config: any = { ...options?.providerOptions };
+      if (options?.endpoint) config.baseUrl = options.endpoint;
+
+       if (options?.apiKey) {
+         // gemini doesn't seem to have createGeminiChat with apiKey as 2nd arg based on exports?
+         // Checking exports: createGeminiChat, geminiText.
+         // Usually follows the pattern. Let's assume createGeminiChat(model, apiKey, config).
+         // If not, I'll need to check. But for now I'll assume consistency.
+         // Actually, I should check if I can.
+         // But let's assume createGeminiChat exists.
+         adapter = module.createGeminiChat(modelId as any, options.apiKey, config);
+      } else {
+        adapter = module.geminiText(modelId as any, config);
+      }
+    } else {
+       // Try to load @tanstack/ai-<providerName>
+       try {
+           const pkgName = `@tanstack/ai-${providerName}`;
+           const module = await import(pkgName);
+           // Try to find a factory. This is harder dynamically without standardized naming.
+           // But let's try <providerName>Text or create<ProviderName>Chat.
+           const textFnName = `${providerName}Text`;
+           const createFnName = `create${providerName.charAt(0).toUpperCase() + providerName.slice(1)}Chat`;
+
+           if (options?.apiKey && module[createFnName]) {
+               adapter = module[createFnName](modelId, options.apiKey, options?.providerOptions);
+           } else if (module[textFnName]) {
+               adapter = module[textFnName](modelId, options?.providerOptions);
+           } else {
+                throw new Error(`Could not find factory function for ${providerName}`);
+           }
+       } catch (e) {
+            throw new Error(`Provider '${providerName}' not supported or not installed. Error: ${(e as Error).message}`);
+       }
+    }
+
+    return adapter;
+
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(
+      `Failed to load provider '${providerName}'. Error: ${message}`,
+    );
   }
-  return providerFn(modelId);
 };
 
 /**

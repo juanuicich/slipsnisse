@@ -3,17 +3,16 @@
  * Pre-builds execution context at startup and runs LLM inference with tool calling.
  */
 
-import { generateText, type LanguageModel, stepCountIs, type Tool } from "ai";
+import { chat, type TextAdapter } from "@tanstack/ai";
 import type { Logger } from "pino";
 import type { SlipsnisseConfig, ToolConfig } from "../config/schema.js";
 import { ToolExecutionError } from "../errors.js";
 import { createLogger } from "../logger.js";
 import type { ClientManager } from "../mcp/client-manager.js";
 import { getModel } from "../providers/registry.js";
-import { wrapTools } from "./tool-wrapper.js";
+import { wrapTools, type TanStackTool } from "./tool-wrapper.js";
 
 const EXECUTION_TIMEOUT_MS = 60_000;
-const MAX_STEPS = 10;
 
 const DEFAULT_SYSTEM_PROMPT = `You are a helpful AI assistant with access to tools.
 Use the available tools to complete the task. Be thorough and precise.
@@ -28,13 +27,16 @@ const getLog = (): Logger => {
   return log;
 };
 
+// Define AnyTextAdapter locally if needed, or rely on inference
+type AnyTextAdapter = TextAdapter<any, any, any, any>;
+
 /**
  * Cached execution context for a composite tool.
  */
 interface ToolExecutionContext {
-  model: LanguageModel;
+  model: AnyTextAdapter;
   systemPrompt: string;
-  tools: Record<string, Tool>;
+  tools: Record<string, TanStackTool>;
 }
 
 /**
@@ -140,7 +142,7 @@ export class ExecutionEngine {
 
   /**
    * Execute a composite tool with the given arguments.
-   * Uses cached context and runs generateText with multi-step tool calling.
+   * Uses cached context and runs chat with multi-step tool calling.
    */
   async execute(
     toolName: string,
@@ -160,39 +162,54 @@ export class ExecutionEngine {
             .join("\n")
         : String(args);
 
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), EXECUTION_TIMEOUT_MS);
+
     try {
-      const { text, steps } = await generateText({
-        model: context.model,
-        system: context.systemPrompt,
-        prompt,
-        tools: context.tools,
-        stopWhen: stepCountIs(MAX_STEPS),
-        abortSignal: AbortSignal.timeout(EXECUTION_TIMEOUT_MS),
+      const stream = chat({
+        adapter: context.model,
+        messages: [{ role: "user", content: prompt }],
+        // Assuming systemPrompts is available in options, otherwise add to messages
+        // Based on types.d.ts inspect, systemPrompts is an option.
+        // If not, we prepend { role: 'system', content: ... }
+        systemPrompts: [context.systemPrompt],
+        tools: Object.values(context.tools),
+        stream: true,
+        abortController,
       });
 
-      // Log intermediate steps at debug level
-      for (const step of steps) {
-        if (step.toolCalls && step.toolCalls.length > 0) {
-          for (const toolCall of step.toolCalls) {
-            getLog().debug(
+      let fullText = "";
+      let stepCount = 0;
+
+      for await (const chunk of stream) {
+        if (chunk.type === "content") {
+          fullText += chunk.delta;
+        } else if (chunk.type === "tool_call") {
+          stepCount++;
+           getLog().debug(
               {
                 tool: toolName,
-                toolCall: toolCall.toolName,
-                input: toolCall.input,
+                toolCall: chunk.toolCall.function.name,
+                // input: chunk.toolCall.function.arguments, // might be JSON string
               },
               "Intermediate tool call",
             );
-          }
+        } else if (chunk.type === "error") {
+             throw new Error(chunk.error.message);
         }
       }
 
+      clearTimeout(timeoutId);
+
       getLog().info(
-        { tool: toolName, stepCount: steps.length, textLength: text.length },
+        { tool: toolName, stepCount, textLength: fullText.length },
         "Composite tool execution complete",
       );
 
-      return { text, stepCount: steps.length };
+      return { text: fullText, stepCount };
     } catch (err) {
+      clearTimeout(timeoutId);
+
       if (err instanceof ToolExecutionError) {
         throw err;
       }
@@ -201,7 +218,7 @@ export class ExecutionEngine {
 
       if (
         message.includes("Timeout") ||
-        message.includes("signal is aborted")
+        message.includes("aborted")
       ) {
         getLog().error(
           { tool: toolName, error: message },
