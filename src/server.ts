@@ -102,8 +102,8 @@ const createToolHandler = (tool: ToolConfig, engine: ExecutionEngine) => {
 };
 
 /**
- * Create and initialize the MCP server with tools from config.
- * ExecutionEngine must be initialized before calling this.
+ * Create and initialise the MCP server with tools from config.
+ * ExecutionEngine must be initialised before calling this.
  */
 export const createServer = (
   config: SlipsnisseConfig,
