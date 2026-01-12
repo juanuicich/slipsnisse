@@ -44,6 +44,10 @@ export const ToolConfigSchema = z.object({
     .max(2)
     .default(0.3)
     .describe("Sampling temperature (0-2). Lower = more deterministic"),
+  allow_callback: z
+    .boolean()
+    .default(false)
+    .describe("Enable reply() tool for 2-way communication with orchestrator"),
 });
 
 /**

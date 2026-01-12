@@ -74,6 +74,23 @@ const createToolHandler = (tool: ToolConfig, engine: ExecutionEngine) => {
   return async (args: Record<string, unknown>) => {
     try {
       const result = await engine.execute(tool.name, args);
+
+      if (result.type === "callback") {
+        // Format callback as text with instructions for orchestrator
+        const callbackText = `[SESSION:${result.sessionId}] Agent is asking: "${result.question}"
+
+To reply, call: slipsnisse_reply(${result.sessionId}, <your_response>)`;
+
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: callbackText,
+            },
+          ],
+        };
+      }
+
       return {
         content: [
           {
@@ -114,6 +131,70 @@ export const createServer = (
     name: "slipsnisse",
     version: "1.0.0",
   });
+
+  // Check if any tool has callback enabled
+  const hasCallbackTools = config.tools.some((tool) => tool.allow_callback);
+
+  // Register hidden reply tool if any tool supports callbacks
+  if (hasCallbackTools) {
+    const replyTool = server.tool(
+      "slipsnisse_reply",
+      "Reply to a paused slipsnisse session",
+      {
+        session_id: z.number().int().min(0).max(999).describe("Session ID from the callback message"),
+        payload: z.unknown().describe("Response data to send to the paused agent"),
+      },
+      async ({ session_id, payload }) => {
+        try {
+          const result = await engine.resume(session_id, payload);
+
+          if (result.type === "callback") {
+            // Agent asked another question
+            const callbackText = `[SESSION:${result.sessionId}] Agent is asking: "${result.question}"
+
+To reply, call: slipsnisse_reply(${result.sessionId}, <your_response>)`;
+
+            return {
+              content: [
+                {
+                  type: "text" as const,
+                  text: callbackText,
+                },
+              ],
+            };
+          }
+
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: result.text,
+              },
+            ],
+          };
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          getLog().error(
+            { session_id, error: message },
+            "Reply handler error",
+          );
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: `Error resuming session ${session_id}: ${message}`,
+              },
+            ],
+            isError: true,
+          };
+        }
+      },
+    );
+
+    // Hide from list_tools - orchestrator learns about it from callback text
+    replyTool.disable();
+    getLog().info("Registered hidden slipsnisse_reply tool");
+  }
 
   for (const tool of config.tools) {
     // Check if all required MCP servers are available
