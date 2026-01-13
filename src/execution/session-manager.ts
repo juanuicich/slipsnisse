@@ -57,10 +57,14 @@ export class SessionManager {
       );
     }
 
-    let resolveReply: (payload: unknown) => void;
+    let resolveReply: ((payload: unknown) => void) | undefined;
     const waitForReply = new Promise<unknown>((resolve) => {
       resolveReply = resolve;
     });
+
+    if (!resolveReply) {
+      throw new Error("Failed to capture promise resolve function");
+    }
 
     const state: SessionState = {
       sessionId,
@@ -69,7 +73,7 @@ export class SessionManager {
       messages,
       question,
       createdAt: Date.now(),
-      resolve: resolveReply!,
+      resolve: resolveReply,
     };
 
     this.sessions.set(sessionId, state);
