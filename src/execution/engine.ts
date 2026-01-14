@@ -6,8 +6,8 @@
 
 import {
   generateText,
-  type ModelMessage,
   type LanguageModel,
+  type ModelMessage,
   stepCountIs,
   type Tool,
   tool,
@@ -196,17 +196,15 @@ export class ExecutionEngine {
    * Create the reply tool for 2-way communication.
    * When called, throws CallbackRequested to interrupt execution.
    */
-  private createReplyTool(
-    messagesRef: { current: ModelMessage[] },
-  ): Record<string, Tool> {
+  private createReplyTool(messagesRef: {
+    current: ModelMessage[];
+  }): Record<string, Tool> {
     return {
       reply: tool({
         description:
           "Ask the orchestrator a question and wait for their response. Use when you need clarification or additional input from the user.",
         inputSchema: z.object({
-          question: z
-            .string()
-            .describe("The question to ask the orchestrator"),
+          question: z.string().describe("The question to ask the orchestrator"),
         }),
         execute: async ({ question }): Promise<string> => {
           // Throw to interrupt execution - will be caught in execute()
