@@ -141,8 +141,15 @@ export const createServer = (
       "slipsnisse_reply",
       "Reply to a paused slipsnisse session",
       {
-        session_id: z.number().int().min(0).max(999).describe("Session ID from the callback message"),
-        payload: z.unknown().describe("Response data to send to the paused agent"),
+        session_id: z
+          .number()
+          .int()
+          .min(0)
+          .max(999)
+          .describe("Session ID from the callback message"),
+        payload: z
+          .unknown()
+          .describe("Response data to send to the paused agent"),
       },
       async ({ session_id, payload }) => {
         try {
@@ -174,10 +181,7 @@ To reply, call: slipsnisse_reply(${result.sessionId}, <your_response>)`;
           };
         } catch (err) {
           const message = err instanceof Error ? err.message : String(err);
-          getLog().error(
-            { session_id, error: message },
-            "Reply handler error",
-          );
+          getLog().error({ session_id, error: message }, "Reply handler error");
           return {
             content: [
               {
